@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oferty - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/oferty.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="offers-page-hero">
+      <div class="container">
+        <h2>Znajdź idealny nocleg</h2>
+        <p>
+          Filtruj oferty według lokalizacji, ceny, udogodnień i standardu obiektu.
+        </p>
+      </div>
+    </section>
+
+    <section class="offers-page section">
+      <div class="container offers-layout">
+
+        <aside class="filters-box">
+          <div class="filters-header">
+            <h3>Filtry wyszukiwania</h3>
+            <button type="button" class="clear-filters-btn">Wyczyść</button>
+          </div>
+
+          <div class="filter-card">
+            <h4>Lokalizacja</h4>
+            <input type="text" id="search-location" placeholder="Np. Kraków" />
+          </div>
+
+          <div class="filter-card">
+            <h4>Typ obiektu</h4>
+            <div class="filter-pills">
+              <button type="button" class="pill active">Wszystkie</button>
+              <button type="button" class="pill">Hotel</button>
+              <button type="button" class="pill">Apartament</button>
+              <button type="button" class="pill">Villa</button>
+              <button type="button" class="pill">Hostel</button>
+              <button type="button" class="pill">Domek</button>
+            </div>
+          </div>
+
+          <div class="filter-card">
+            <h4>Maksymalna cena</h4>
+            <div class="price-range-box">
+              <input type="range" id="priceRange" min="100" max="1200" step="10" value="600" />
+              <div class="price-range-values">
+                <span>100 zł</span>
+                <strong id="priceRangeValue">600 zł</strong>
+                <span>1200 zł</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-card">
+            <h4>Ocena gości</h4>
+            <div class="checkbox-list">
+              <label><input type="checkbox" /> 9+ Fantastyczny</label>
+              <label><input type="checkbox" /> 8+ Bardzo dobry</label>
+              <label><input type="checkbox" /> 7+ Dobry</label>
+            </div>
+          </div>
+
+          <div class="filter-card">
+            <h4>Standard</h4>
+            <div class="checkbox-list">
+              <label><input type="checkbox" /> 5 gwiazdek</label>
+              <label><input type="checkbox" /> 4 gwiazdki</label>
+              <label><input type="checkbox" /> 3 gwiazdki</label>
+            </div>
+          </div>
+
+          <div class="filter-card">
+            <h4>Udogodnienia</h4>
+            <div class="checkbox-list">
+              <label><input type="checkbox" /> Parking</label>
+              <label><input type="checkbox" /> Wi-Fi</label>
+              <label><input type="checkbox" /> Śniadanie</label>
+              <label><input type="checkbox" /> Basen</label>
+              <label><input type="checkbox" /> Spa</label>
+              <label><input type="checkbox" /> Klimatyzacja</label>
+            </div>
+          </div>
+
+          <div class="filter-card">
+            <h4>Sortowanie</h4>
+            <select id="sort">
+              <option>Najwyżej oceniane</option>
+              <option>Najtańsze</option>
+              <option>Najdroższe</option>
+              <option>Najpopularniejsze</option>
+            </select>
+          </div>
+
+          <button class="filter-btn">Zastosuj filtry</button>
+        </aside>
+
+        <div class="offers-results-wrapper">
+          <div class="results-topbar">
+            <div>
+              <h3>Znalezione oferty</h3>
+            </div>
+
+            <div class="results-actions">
+              <button type="button" class="view-btn active" data-view="list">Lista</button>
+              <button type="button" class="view-btn" data-view="grid">Siatka</button>
+            </div>
+          </div>
+
+          <div class="active-filters">
+            <span class="active-filter-tag">Kraków</span>
+            <span class="active-filter-tag">Do 600 zł</span>
+            <span class="active-filter-tag">Parking</span>
+            <span class="active-filter-tag">Wi-Fi</span>
+          </div>
+
+          <div id="offersResults" class="offers-results list-view">
+            <div class="offer-result-card">
+              <button class="favorite-btn"
+                data-offer-id="oferta-1"
+                data-title="Hotel Kraków Premium"
+                data-location="Kraków"
+                data-type="Hotel"
+                data-price="420"
+                data-image="https://picsum.photos/seed/oferta1/600/400"
+                data-link="oferta-szczegoly.html"
+                type="button">♡</button>
+
+              <div class="offer-result-image">
+                <img src="https://picsum.photos/seed/oferta1/600/400" alt="Hotel Kraków Premium" />
+              </div>
+
+              <div class="offer-result-content">
+                <div class="offer-result-main">
+                  <span class="offer-type-badge">Hotel</span>
+                  <h3>Hotel Kraków Premium</h3>
+                  <p class="offer-result-location">📍 Kraków</p>
+
+                  <div class="offer-stars-row">
+                    <div class="offer-stars">
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                    </div>
+                    <span class="offer-stars-text">5/5</span>
+                  </div>
+
+                  <p class="offer-result-description">
+                    Komfortowy hotel w centrum miasta, blisko rynku i głównych atrakcji turystycznych.
+                  </p>
+
+                  <div class="offer-tags">
+                    <span>Centrum</span>
+                    <span>Śniadanie</span>
+                    <span>Parking</span>
+                    <span>Wi-Fi</span>
+                  </div>
+                </div>
+
+                <div class="offer-result-side">
+                  <p class="offer-rating-label">Fantastyczny</p>
+                  <div class="offer-rating">9.4</div>
+                  <p class="offer-reviews">1248 opinii</p>
+
+                  <div class="offer-price-box">
+                    <p>Od</p>
+                    <strong>420 zł</strong>
+                    <a href="oferta-szczegoly.html" class="offer-btn">Zobacz ofertę</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="offer-result-card">
+              <button class="favorite-btn"
+                data-offer-id="oferta-2"
+                data-title="Apartament Gdańsk Sea View"
+                data-location="Gdańsk"
+                data-type="Apartament"
+                data-price="390"
+                data-image="https://picsum.photos/seed/oferta2/600/400"
+                data-link="oferta-szczegoly.html"
+                type="button">♡</button>
+
+              <div class="offer-result-image">
+                <img src="https://picsum.photos/seed/oferta2/600/400" alt="Apartament Gdańsk Sea View" />
+              </div>
+
+              <div class="offer-result-content">
+                <div class="offer-result-main">
+                  <span class="offer-type-badge">Apartament</span>
+                  <h3>Apartament Gdańsk Sea View</h3>
+                  <p class="offer-result-location">📍 Gdańsk</p>
+
+                  <div class="offer-stars-row">
+                    <div class="offer-stars">
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star">☆</span>
+                    </div>
+                    <span class="offer-stars-text">4/5</span>
+                  </div>
+
+                  <p class="offer-result-description">
+                    Nowoczesny apartament z widokiem na morze, idealny na wakacyjny wypoczynek.
+                  </p>
+
+                  <div class="offer-tags">
+                    <span>Morze</span>
+                    <span>Balkon</span>
+                    <span>Wi-Fi</span>
+                    <span>Parking</span>
+                  </div>
+                </div>
+
+                <div class="offer-result-side">
+                  <p class="offer-rating-label">Wspaniały</p>
+                  <div class="offer-rating">9.1</div>
+                  <p class="offer-reviews">931 opinii</p>
+
+                  <div class="offer-price-box">
+                    <p>Od</p>
+                    <strong>390 zł</strong>
+                    <a href="oferta-szczegoly.html" class="offer-btn">Zobacz ofertę</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="offer-result-card">
+              <button class="favorite-btn"
+                data-offer-id="oferta-3"
+                data-title="Domek Zakopane View"
+                data-location="Zakopane"
+                data-type="Domek"
+                data-price="520"
+                data-image="https://picsum.photos/seed/oferta3/600/400"
+                data-link="oferta-szczegoly.html"
+                type="button">♡</button>
+
+              <div class="offer-result-image">
+                <img src="https://picsum.photos/seed/oferta3/600/400" alt="Domek Zakopane View" />
+              </div>
+
+              <div class="offer-result-content">
+                <div class="offer-result-main">
+                  <span class="offer-type-badge">Domek</span>
+                  <h3>Domek Zakopane View</h3>
+                  <p class="offer-result-location">📍 Zakopane</p>
+
+                  <div class="offer-stars-row">
+                    <div class="offer-stars">
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                    </div>
+                    <span class="offer-stars-text">5/5</span>
+                  </div>
+
+                  <p class="offer-result-description">
+                    Klimatyczny domek z pięknym widokiem na góry i szybkim dostępem do szlaków.
+                  </p>
+
+                  <div class="offer-tags">
+                    <span>Góry</span>
+                    <span>Widok</span>
+                    <span>Rodzinny</span>
+                    <span>Parking</span>
+                  </div>
+                </div>
+
+                <div class="offer-result-side">
+                  <p class="offer-rating-label">Fantastyczny</p>
+                  <div class="offer-rating">9.6</div>
+                  <p class="offer-reviews">1502 opinie</p>
+
+                  <div class="offer-price-box">
+                    <p>Od</p>
+                    <strong>520 zł</strong>
+                    <a href="oferta-szczegoly.html" class="offer-btn">Zobacz ofertę</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="offer-result-card">
+              <button class="favorite-btn"
+                data-offer-id="oferta-4"
+                data-title="Villa Mazury Relax"
+                data-location="Mazury"
+                data-type="Villa"
+                data-price="350"
+                data-image="https://picsum.photos/seed/oferta4/600/400"
+                data-link="oferta-szczegoly.html"
+                type="button">♡</button>
+
+              <div class="offer-result-image">
+                <img src="https://picsum.photos/seed/oferta4/600/400" alt="Villa Mazury Relax" />
+              </div>
+
+              <div class="offer-result-content">
+                <div class="offer-result-main">
+                  <span class="offer-type-badge">Villa</span>
+                  <h3>Villa Mazury Relax</h3>
+                  <p class="offer-result-location">📍 Mazury</p>
+
+                  <div class="offer-stars-row">
+                    <div class="offer-stars">
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star filled">★</span>
+                      <span class="star">☆</span>
+                    </div>
+                    <span class="offer-stars-text">4/5</span>
+                  </div>
+
+                  <p class="offer-result-description">
+                    Willa nad jeziorem z dostępem do strefy relaksu i spokojnej okolicy.
+                  </p>
+
+                  <div class="offer-tags">
+                    <span>Jezioro</span>
+                    <span>Relaks</span>
+                    <span>Parking</span>
+                  </div>
+                </div>
+
+                <div class="offer-result-side">
+                  <p class="offer-rating-label">Bardzo dobry</p>
+                  <div class="offer-rating">8.8</div>
+                  <p class="offer-reviews">674 opinie</p>
+
+                  <div class="offer-price-box">
+                    <p>Od</p>
+                    <strong>350 zł</strong>
+                    <a href="oferta-szczegoly.html" class="offer-btn">Zobacz ofertę</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pagination">
+            <a href="#" class="page-btn active">1</a>
+            <a href="#" class="page-btn">2</a>
+            <a href="#" class="page-btn">3</a>
+            <a href="#" class="page-btn">4</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/favorites.js"></script>
+  <script src="../js/oferty.js"></script>
+</body>
+</html>

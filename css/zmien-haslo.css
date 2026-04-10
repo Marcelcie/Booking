@@ -1,0 +1,118 @@
+.password-page {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+}
+
+.password-box {
+  background-color: #ffffff;
+  border-radius: 22px;
+  padding: 34px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.password-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.password-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background-color: #eef6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+
+.password-header h2 {
+  color: #1d3557;
+  font-size: 34px;
+  margin-bottom: 4px;
+}
+
+.password-header p {
+  color: #4b5563;
+}
+
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  padding: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #1e88e5;
+}
+
+.form-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.save-btn,
+.back-btn {
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.save-btn {
+  background-color: #1e88e5;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #1565c0;
+}
+
+.back-btn {
+  background-color: #eef6ff;
+  color: #1565c0;
+}
+
+.back-btn:hover {
+  background-color: #dcecff;
+}
+
+@media (max-width: 700px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .password-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .password-header h2 {
+    font-size: 28px;
+  }
+}

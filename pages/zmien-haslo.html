@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zmień hasło - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/zmien-haslo.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="password-page section">
+      <div class="container">
+        <div class="password-box">
+          <div class="password-header">
+            <div class="password-icon">🔒</div>
+            <div>
+              <h2>Zmień hasło</h2>
+              <p>Ustaw nowe hasło dla swojego konta.</p>
+            </div>
+          </div>
+
+          <form class="password-form">
+            <div class="form-group">
+              <label for="current-password">Obecne hasło</label>
+              <input type="password" id="current-password" placeholder="Wpisz obecne hasło" />
+            </div>
+
+            <div class="form-group">
+              <label for="new-password">Nowe hasło</label>
+              <input type="password" id="new-password" placeholder="Wpisz nowe hasło" />
+            </div>
+
+            <div class="form-group">
+              <label for="confirm-password">Powtórz nowe hasło</label>
+              <input type="password" id="confirm-password" placeholder="Powtórz nowe hasło" />
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="save-btn">Zmień hasło</button>
+              <button type="button" class="back-btn" onclick="window.location.href='konto.html'">Wróć do konta</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+</body>
+</html>

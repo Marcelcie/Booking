@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rankingi - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/ranking.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="login.html">Zaloguj się</a>
+        <a href="register.html">Zarejestruj się</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="ranking-hero">
+      <div class="container">
+        <h2>Rankingi obiektów</h2>
+        <p>Sprawdź najlepiej oceniane, najpopularniejsze i najczęściej wybierane miejsca noclegowe.</p>
+      </div>
+    </section>
+
+    <section class="ranking-page section">
+      <div class="container">
+
+        <div class="ranking-tabs">
+          <button class="ranking-tab active" data-tab="topRated">Najwyżej oceniane</button>
+          <button class="ranking-tab" data-tab="popular">Najpopularniejsze</button>
+          <button class="ranking-tab" data-tab="cheapest">Najtańsze</button>
+          <button class="ranking-tab" data-tab="premium">Premium</button>
+        </div>
+
+        <div id="ranking-list" class="ranking-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>
+            Studencki projekt frontendu aplikacji do rezerwacji noclegów.
+          </p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/ranking.js"></script>
+</body>
+</html>

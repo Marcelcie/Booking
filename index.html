@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BookSpace - Rezerwacje noclegów</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="index.html">Strona główna</a>
+        <a href="pages/oferty.html">Oferty</a>
+        <a href="pages/ranking.html">Ranking</a>
+        <a href="pages/kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="pages/login.html">Zaloguj się</a>
+          <a href="pages/register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <a href="pages/konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-content">
+        <div class="hero-text">
+          <h2>Znajdź idealne miejsce na swój wypoczynek</h2>
+          <p>
+            Rezerwuj hotele, apartamenty i domki w najlepszych lokalizacjach.
+            Wygodnie, szybko i nowocześnie.
+          </p>
+          <button type="button" class="btn" onclick="window.location.href='pages/oferty.html'">
+            Przeglądaj oferty
+          </button>
+        </div>
+
+        <div class="search-box">
+          <h3>Wyszukaj nocleg</h3>
+          <form>
+            <label for="location">Lokalizacja</label>
+            <div class="input-icon-box">
+              <span class="input-icon">📍</span>
+              <input type="text" id="location" placeholder="Np. Kraków" />
+            </div>
+
+            <label for="checkin">Data przyjazdu</label>
+            <input type="date" id="checkin" />
+
+            <label for="checkout">Data wyjazdu</label>
+            <input type="date" id="checkout" />
+
+            <label for="guest-summary">Goście i pokoje</label>
+            <div class="guest-picker">
+              <button type="button" id="guest-summary" class="guest-summary">
+                <span class="guest-summary-left">
+                  <span class="guest-icon">👤</span>
+                  <span id="guest-summary-text">2 dorosłych, 0 dzieci, 1 pokój</span>
+                </span>
+                <span class="guest-arrow">⌄</span>
+              </button>
+
+              <div id="guest-dropdown" class="guest-dropdown">
+                <div class="guest-row">
+                  <div class="guest-label">
+                    <span>Dorośli</span>
+                    <small>Wiek 18+</small>
+                  </div>
+                  <div class="guest-controls">
+                    <button type="button" class="count-btn" data-target="adults" data-action="minus">-</button>
+                    <span id="adults-count">2</span>
+                    <button type="button" class="count-btn" data-target="adults" data-action="plus">+</button>
+                  </div>
+                </div>
+
+                <div class="guest-row">
+                  <div class="guest-label">
+                    <span>Dzieci</span>
+                    <small>Wiek 0–17</small>
+                  </div>
+                  <div class="guest-controls">
+                    <button type="button" class="count-btn" data-target="children" data-action="minus">-</button>
+                    <span id="children-count">0</span>
+                    <button type="button" class="count-btn" data-target="children" data-action="plus">+</button>
+                  </div>
+                </div>
+
+                <div class="guest-row">
+                  <div class="guest-label">
+                    <span>Pokoje</span>
+                    <small>Liczba pokoi</small>
+                  </div>
+                  <div class="guest-controls">
+                    <button type="button" class="count-btn" data-target="rooms" data-action="minus">-</button>
+                    <span id="rooms-count">1</span>
+                    <button type="button" class="count-btn" data-target="rooms" data-action="plus">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-full" onclick="window.location.href='pages/oferty.html'">
+              Szukaj
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="offers section">
+      <div class="container">
+        <h2 class="section-title">Popularne oferty</h2>
+
+        <div class="offers-tabs">
+          <button class="tab-btn active" data-category="wedrowki">Wędrówki</button>
+          <button class="tab-btn" data-category="wellness">Wellness</button>
+          <button class="tab-btn" data-category="festiwale">Festiwale & Wydarzenia</button>
+          <button class="tab-btn" data-category="kultura">Dziedzictwo i Kultura</button>
+          <button class="tab-btn" data-category="historyczne">Wyprawy historyczne</button>
+          <button class="tab-btn" data-category="rodzinne">Wycieczki Rodzinne</button>
+        </div>
+
+        <div class="carousel-wrapper">
+          <button id="prev-btn" class="carousel-arrow left">&#10094;</button>
+
+          <div class="carousel-viewport">
+            <div id="offers-track" class="offers-track"></div>
+          </div>
+
+          <button id="next-btn" class="carousel-arrow right">&#10095;</button>
+        </div>
+
+        <div id="offers-empty" class="offers-empty"></div>
+      </div>
+    </section>
+
+    <section class="types section">
+      <div class="container">
+        <h2 class="section-title">Przeglądaj według typu obiektu</h2>
+
+        <div class="types-grid">
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=hotel'">Hotel</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=hostel'">Hostel</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=villa'">Villa</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=apartament'">Apartament</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=domek'">Domek</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=resort'">Resort</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=pensjonat'">Pensjonat</button>
+          <button type="button" class="type-card" onclick="window.location.href='pages/oferty.html?type=dom-wakacyjny'">Dom wakacyjny</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="project-info section">
+      <div class="container">
+        <h2 class="section-title">Szybkie odkrywanie</h2>
+
+        <div class="project-cards">
+          <div class="project-card">
+            <h3>Popularne miasta</h3>
+            <p>Kraków, Gdańsk, Zakopane, Warszawa, Wrocław</p>
+          </div>
+
+          <div class="project-card">
+            <h3>Najczęściej wybierane</h3>
+            <p>Hotele, apartamenty, domki, pensjonaty, resorty</p>
+          </div>
+
+          <div class="project-card">
+            <h3>Rodzaje wyjazdów</h3>
+            <p>Wellness, rodzinne, historyczne, miejskie i aktywne</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="index.html">Strona główna</a>
+          <a href="pages/oferty.html">Oferty</a>
+          <a href="pages/ranking.html">Ranking</a>
+          <a href="pages/kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="pages/oferty.html?type=hotel">Hotele</a>
+          <a href="pages/oferty.html?type=apartament">Apartamenty</a>
+          <a href="pages/oferty.html?type=domek">Domki</a>
+          <a href="pages/oferty.html?type=wellness">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/favorites.js"></script>
+</body>
+</html>

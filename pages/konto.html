@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moje konto - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/konto.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="account-hero">
+      <div class="container">
+        <div class="account-hero-box">
+          <div class="account-avatar">👤</div>
+
+          <div class="account-hero-text">
+            <p class="account-hero-subtitle">Panel użytkownika</p>
+            <h2>Witaj, <span id="konto-user-name">---</span></h2>
+            <p class="account-hero-desc">
+              Tutaj możesz sprawdzać swoje dane, rezerwacje oraz zapisane ulubione oferty.
+            </p>
+          </div>
+
+          <div class="account-hero-status">
+            <span class="status-badge">Zalogowany</span>
+            <p id="konto-user-email">---</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="account-page section">
+      <div class="container account-layout">
+
+        <div class="account-stats">
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div>
+              <h3>2</h3>
+              <p>Aktywne rezerwacje</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">❤️</div>
+            <div>
+              <h3 id="favorites-count">0</h3>
+              <p>Ulubione oferty</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">⚙️</div>
+            <div>
+              <h3>2</h3>
+              <p>Ustawienia konta</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="account-main-grid">
+
+          <div class="account-section-card">
+            <div class="section-header">
+              <div class="section-icon">🧑</div>
+              <div>
+                <h3>Dane użytkownika</h3>
+                <p>Podstawowe informacje o Twoim koncie.</p>
+              </div>
+            </div>
+
+            <div class="account-info-list">
+              <div class="info-row">
+                <span>Imię i nazwisko</span>
+                <strong id="konto-user-name-2">---</strong>
+              </div>
+
+              <div class="info-row">
+                <span>Adres e-mail</span>
+                <strong id="konto-user-email-2">---</strong>
+              </div>
+
+              <div class="info-row">
+                <span>Status konta</span>
+                <strong>Aktywne</strong>
+              </div>
+
+              <div class="info-row">
+                <span>Rola</span>
+                <strong>Użytkownik</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="account-section-card">
+            <div class="section-header">
+              <div class="section-icon">📌</div>
+              <div>
+                <h3>Szybkie akcje</h3>
+                <p>Najważniejsze przejścia w panelu użytkownika.</p>
+              </div>
+            </div>
+
+            <div class="quick-actions">
+              <button type="button" class="quick-btn" onclick="document.getElementById('rezerwacje').scrollIntoView({ behavior: 'smooth' })">
+                Moje rezerwacje
+              </button>
+
+              <button type="button" class="quick-btn" onclick="document.getElementById('ulubione').scrollIntoView({ behavior: 'smooth' })">
+                Ulubione
+              </button>
+
+              <button type="button" class="quick-btn" onclick="window.location.href='edytuj-profil.html'">
+                Edytuj profil
+              </button>
+
+              <button type="button" class="quick-btn" onclick="window.location.href='zmien-haslo.html'">
+                Zmień hasło
+              </button>
+            </div>
+          </div>
+
+          <div class="account-section-card full-width" id="rezerwacje">
+            <div class="section-header">
+              <div class="section-icon">🛎️</div>
+              <div>
+                <h3>Moje rezerwacje</h3>
+                <p>Przykładowa historia aktywnych rezerwacji użytkownika.</p>
+              </div>
+            </div>
+
+            <div class="bookings-grid">
+              <div class="booking-card">
+                <div class="booking-top">
+                  <h4>Hotel Kraków Premium</h4>
+                  <span class="booking-status active">Aktywna</span>
+                </div>
+                <p><strong>Termin:</strong> 12.07.2026 – 15.07.2026</p>
+                <p><strong>Lokalizacja:</strong> Kraków</p>
+                <p><strong>Liczba gości:</strong> 2 osoby</p>
+              </div>
+
+              <div class="booking-card">
+                <div class="booking-top">
+                  <h4>Apartament Gdańsk Sea View</h4>
+                  <span class="booking-status active">Aktywna</span>
+                </div>
+                <p><strong>Termin:</strong> 21.08.2026 – 25.08.2026</p>
+                <p><strong>Lokalizacja:</strong> Gdańsk</p>
+                <p><strong>Liczba gości:</strong> 3 osoby</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="account-section-card full-width" id="ulubione">
+            <div class="section-header">
+              <div class="section-icon">❤️</div>
+              <div>
+                <h3>Ulubione oferty</h3>
+                <p>Obiekty zapisane przez kliknięcie serduszka.</p>
+              </div>
+            </div>
+
+            <div id="favorites-list" class="favorites-grid"></div>
+          </div>
+
+          <div class="account-section-card full-width">
+            <div class="section-header">
+              <div class="section-icon">⚙️</div>
+              <div>
+                <h3>Ustawienia konta</h3>
+                <p>Przejdź do edycji profilu lub zmiany hasła.</p>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <div class="setting-box">
+                <h4>Edytuj profil</h4>
+                <p>Zmień imię, nazwisko i adres e-mail.</p>
+                <button type="button" class="settings-btn" onclick="window.location.href='edytuj-profil.html'">
+                  Przejdź
+                </button>
+              </div>
+
+              <div class="setting-box">
+                <h4>Zmień hasło</h4>
+                <p>Ustaw nowe hasło do konta użytkownika.</p>
+                <button type="button" class="settings-btn" onclick="window.location.href='zmien-haslo.html'">
+                  Przejdź
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/favorites.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = localStorage.getItem("bookspace_user");
+
+      if (user) {
+        const parsedUser = JSON.parse(user);
+
+        const name1 = document.getElementById("konto-user-name");
+        const name2 = document.getElementById("konto-user-name-2");
+        const email1 = document.getElementById("konto-user-email");
+        const email2 = document.getElementById("konto-user-email-2");
+
+        if (name1) name1.textContent = parsedUser.name;
+        if (name2) name2.textContent = parsedUser.name;
+        if (email1) email1.textContent = parsedUser.email;
+        if (email2) email2.textContent = parsedUser.email;
+      }
+
+      const favorites = JSON.parse(localStorage.getItem("bookspace_favorites") || "[]");
+      const favoritesCount = document.getElementById("favorites-count");
+
+      if (favoritesCount) {
+        favoritesCount.textContent = favorites.length;
+      }
+    });
+  </script>
+</body>
+</html>

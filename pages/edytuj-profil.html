@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edytuj profil - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/edytuj-profil.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="profile-edit-page section">
+      <div class="container">
+        <div class="profile-edit-box">
+          <div class="profile-edit-header">
+            <div class="profile-edit-icon">🧑</div>
+            <div>
+              <h2>Edytuj profil</h2>
+              <p>Zmień swoje podstawowe dane użytkownika.</p>
+            </div>
+          </div>
+
+          <form class="profile-edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="first-name">Imię</label>
+                <input type="text" id="first-name" placeholder="Jan" />
+              </div>
+
+              <div class="form-group">
+                <label for="last-name">Nazwisko</label>
+                <input type="text" id="last-name" placeholder="Kowalski" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Adres e-mail</label>
+              <input type="email" id="email" placeholder="jan@example.com" />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Numer telefonu</label>
+              <input type="text" id="phone" placeholder="+48 123 456 789" />
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="save-btn">Zapisz zmiany</button>
+              <button type="button" class="back-btn" onclick="window.location.href='konto.html'">Wróć do konta</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+</body>
+</html>

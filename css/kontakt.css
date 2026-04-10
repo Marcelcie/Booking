@@ -1,0 +1,164 @@
+.contact-hero {
+  background: linear-gradient(135deg, #eef6ff, #dcecff);
+  padding: 60px 0;
+}
+
+.contact-hero h2 {
+  font-size: 40px;
+  color: #1d3557;
+  margin-bottom: 10px;
+}
+
+.contact-hero p {
+  color: #4b5563;
+  font-size: 17px;
+  max-width: 700px;
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.contact-form-box,
+.contact-card,
+.faq-item {
+  background-color: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.contact-form-box {
+  padding: 30px;
+}
+
+.contact-form-box h3 {
+  font-size: 28px;
+  color: #1d3557;
+  margin-bottom: 20px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #1e88e5;
+}
+
+.contact-btn {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  padding: 15px 24px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  width: fit-content;
+}
+
+.contact-btn:hover {
+  background-color: #1565c0;
+}
+
+.contact-info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-card {
+  padding: 24px;
+}
+
+.contact-card h3 {
+  font-size: 22px;
+  color: #1d3557;
+  margin-bottom: 14px;
+}
+
+.contact-card p {
+  color: #4b5563;
+  margin-bottom: 10px;
+}
+
+/* FAQ */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.faq-item {
+  padding: 24px;
+}
+
+.faq-item h3 {
+  color: #1d3557;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.faq-item p {
+  color: #4b5563;
+}
+
+@media (max-width: 1000px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-hero h2 {
+    font-size: 30px;
+  }
+
+  .contact-form-box h3,
+  .faq-item h3,
+  .contact-card h3 {
+    font-size: 24px;
+  }
+
+  .contact-btn {
+    width: 100%;
+  }
+}
