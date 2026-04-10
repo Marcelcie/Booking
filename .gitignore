@@ -1,0 +1,18 @@
+# =========================
+# BACKEND (Python / Django)
+# =========================
+
+# Wirtualne środowisko
+backend/venv/
+venv/
+env/
+
+# Skompilowane pliki Pythona (tworzą się automatycznie)
+__pycache__/
+
+# Lokalna baza danych Django
+backend/db.sqlite3
+*.sqlite3
+
+# Pliki ze zmiennymi środowiskowymi (hasła, sekrety)
+.env
