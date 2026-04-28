@@ -41,9 +41,9 @@ function renderOfferDetails(offer) {
       <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
         <button class="favorite-btn active" type="button" style="position:static;">♡</button>
         <div class="details-rating-box">
-          <p class="offer-rating-label">${offer.ratingLabel || 'Bardzo dobry'}</p>
+          <p class="offer-rating-label">${(offer.rating >= 9.0 ? 'Fantastyczny' : 'Bardzo dobry') || 'Bardzo dobry'}</p>
           <div class="offer-rating">${offer.rating}</div>
-          <p class="offer-reviews">${offer.reviews} opinii</p>
+          <p class="offer-reviews">${offer.reviews_count} opinii</p>
         </div>
       </div>
     `;
@@ -58,7 +58,7 @@ function renderOfferDetails(offer) {
   if (gallery) {
     gallery.innerHTML = `
       <div class="gallery-main">
-        <img src="${offer.image}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/1000/650';" />
+        <img src="${offer.image_url}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/1000/650';" />
       </div>
       <div class="gallery-side">
         <img src="https://picsum.photos/seed/${offer.id}a/500/300" />
@@ -97,7 +97,7 @@ function renderOfferDetails(offer) {
         <p class="booking-sub">za noc</p>
         <div class="booking-info">
           <p><strong>Ocena:</strong> ${offer.rating}/10</p>
-          <p><strong>Opinie:</strong> ${offer.reviews}</p>
+          <p><strong>Opinie:</strong> ${offer.reviews_count}</p>
           <p><strong>Typ obiektu:</strong> ${offer.type}</p>
         </div>
         <button type="button" class="booking-btn">Zarezerwuj teraz</button>

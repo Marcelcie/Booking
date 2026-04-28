@@ -1,22 +1,51 @@
-function getMockUser() {
-  const user = localStorage.getItem("bookspace_user");
-  return user ? JSON.parse(user) : null;
+function getAuthToken() {
+  return localStorage.getItem("bookspace_token");
 }
 
-function setMockUser(user) {
-  localStorage.setItem("bookspace_user", JSON.stringify(user));
+function setAuthToken(token) {
+  localStorage.setItem("bookspace_token", token);
+}
+
+function removeAuthToken() {
+  localStorage.removeItem("bookspace_token");
 }
 
 function getHomePath() {
   return window.location.pathname.includes("/pages/") ? "../index.html" : "index.html";
 }
 
-function updateNavbar() {
+async function fetchUserProfile() {
+  const token = getAuthToken();
+  if (!token) return null;
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/me/", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 401) {
+      // Token wygasł lub jest nieprawidłowy
+      removeAuthToken();
+      return null;
+    }
+
+    if (!response.ok) throw new Error("Błąd pobierania profilu");
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+async function updateNavbar() {
   const guestLinks = document.getElementById("guest-links");
   const accountLinks = document.getElementById("account-links");
-  const user = getMockUser();
-
+  
   if (!guestLinks || !accountLinks) return;
+
+  const user = await fetchUserProfile();
 
   if (user) {
     guestLinks.style.display = "none";
@@ -27,12 +56,13 @@ function updateNavbar() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   updateNavbar();
 
+  // ----- LOGOWANIE -----
   const loginForm = document.getElementById("mock-login-form");
   if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const email = document.getElementById("email").value.trim();
@@ -43,20 +73,38 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const mockUser = {
-        name: "Jan Kowalski",
-        email,
-        role: "user"
-      };
+      try {
+        // Wysyłamy prośbę o token z backendu
+        // Używamy emaila jako username, bo tak ustawiliśmy to w backendzie
+        const response = await fetch("http://127.0.0.1:8000/api/token/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: email, password: password })
+        });
 
-      setMockUser(mockUser);
-      window.location.href = "konto.html";
+        if (!response.ok) {
+          alert("Nieprawidłowy e-mail lub hasło.");
+          return;
+        }
+
+        const data = await response.json();
+        
+        // Zapisujemy token dostępu (JWT) w localStorage
+        setAuthToken(data.access);
+        
+        // Przekierowujemy do konta
+        window.location.href = "konto.html";
+      } catch (error) {
+        console.error(error);
+        alert("Błąd połączenia z serwerem.");
+      }
     });
   }
 
+  // ----- REJESTRACJA -----
   const registerForm = document.getElementById("mock-register-form");
   if (registerForm) {
-    registerForm.addEventListener("submit", (e) => {
+    registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const fullname = document.getElementById("fullname").value.trim();
@@ -74,32 +122,46 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const mockUser = {
-        name: fullname,
-        email,
-        role: "user"
-      };
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/register/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, fullname })
+        });
 
-      setMockUser(mockUser);
-      window.location.href = "konto.html";
+        if (!response.ok) {
+          const errData = await response.json();
+          alert(errData.error || "Błąd podczas rejestracji.");
+          return;
+        }
+
+        alert("Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.");
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error(error);
+        alert("Błąd połączenia z serwerem.");
+      }
     });
   }
 
+  // ----- WYLOGOWYWANIE -----
   document.querySelectorAll(".logout-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      localStorage.removeItem("bookspace_user");
+      removeAuthToken(); // Usuwamy token zabezpieczający
       window.location.href = getHomePath();
     });
   });
 
+  // ----- ZAKŁADKA "MOJE KONTO" -----
   const accountPageName = document.getElementById("konto-user-name");
   const accountPageEmail = document.getElementById("konto-user-email");
 
   if (accountPageName || accountPageEmail) {
-    const user = getMockUser();
+    const user = await fetchUserProfile();
 
     if (!user) {
+      // Jeśli użytkownik nie jest zalogowany (brak tokena/zły token), wyrzuć go na stronę logowania
       window.location.href = "login.html";
       return;
     }

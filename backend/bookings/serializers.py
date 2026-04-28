@@ -1,9 +1,12 @@
 from rest_framework import serializers
-from .models import Offer
+from .models import Offer, Category, Tag
 
 class OfferSerializer(serializers.ModelSerializer):
-    tags_list = serializers.ListField(
-        child=serializers.CharField(), source='get_tags_list', read_only=True
+    tags_list = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='name', source='tags'
+    )
+    category_name = serializers.SlugRelatedField(
+        read_only=True, slug_field='name', source='category'
     )
 
     class Meta:

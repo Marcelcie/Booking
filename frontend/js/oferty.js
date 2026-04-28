@@ -59,12 +59,12 @@ function renderOffers(offers) {
         data-location="${offer.location}"
         data-type="${offer.type}"
         data-price="${offer.price}"
-        data-image="${offer.image}"
+        data-image="${offer.image_url}"
         data-link="oferta-szczegoly.html?id=${offer.id}"
         type="button">♡</button>
 
       <div class="offer-result-image">
-        <img src="${offer.image}" alt="${offer.title}" />
+        <img src="${offer.image_url}" alt="${offer.title}" />
       </div>
 
       <div class="offer-result-content">
@@ -84,14 +84,14 @@ function renderOffers(offers) {
           <p class="offer-result-description">${offer.description}</p>
 
           <div class="offer-tags">
-            ${offer.tags.map(tag => `<span>${tag}</span>`).join('')}
+            ${(offer.tags_list || []).map(tag => `<span>${tag}</span>`).join('')}
           </div>
         </div>
 
         <div class="offer-result-side">
-          <p class="offer-rating-label">${offer.ratingLabel}</p>
+          <p class="offer-rating-label">${(offer.rating >= 9.0 ? 'Fantastyczny' : 'Bardzo dobry')}</p>
           <div class="offer-rating">${offer.rating}</div>
-          <p class="offer-reviews">${offer.reviews} opinii</p>
+          <p class="offer-reviews">${offer.reviews_count} opinii</p>
 
           <div class="offer-price-box">
             <p>Od</p>
