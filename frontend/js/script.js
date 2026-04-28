@@ -67,8 +67,16 @@ countButtons.forEach(button => {
 /* OFFERS */
 async function loadOffers() {
   try {
-    const response = await fetch("json/offers.json");
+    // Podłączamy prawdziwe Django API!
+    const response = await fetch('http://127.0.0.1:8000/api/grouped-offers/');
+    
+    if (!response.ok) {
+      throw new Error('Błąd pobierania danych z backendu!');
+    }
+    
     const data = await response.json();
+    console.log("Dane pobrane z backendu:", data);
+    
     allOffers = data;
 
     renderCarousel();
@@ -125,13 +133,13 @@ function renderCarousel() {
         data-location="${offer.location}"
         data-type="${offer.type}"
         data-price="${offer.price}"
-        data-image="${offer.image}"
+        data-image="${offer.image_url}"
         data-link="pages/oferta-szczegoly.html"
         type="button"
       >♡</button>
 
       <div class="offer-image">
-        <img src="${offer.image}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/600/400';" />
+        <img src="${offer.image_url}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/600/400';" />
       </div>
 
       <div class="offer-card-content">
@@ -156,7 +164,7 @@ function renderCarousel() {
           <div class="offer-rating-box">
             <p class="offer-rating-label">${getRatingLabel(offer.rating)}</p>
             <div class="offer-rating">${offer.rating}</div>
-            <p class="offer-reviews">${offer.reviews} opinii</p>
+            <p class="offer-reviews">${offer.reviews_count} opinii</p>
           </div>
 
           <div class="offer-price">
