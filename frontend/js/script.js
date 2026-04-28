@@ -67,8 +67,16 @@ countButtons.forEach(button => {
 /* OFFERS */
 async function loadOffers() {
   try {
-    const response = await fetch("json/offers.json");
+    // Podłączamy prawdziwe Django API!
+    const response = await fetch('http://127.0.0.1:8000/api/grouped-offers/');
+    
+    if (!response.ok) {
+      throw new Error('Błąd pobierania danych z backendu!');
+    }
+    
     const data = await response.json();
+    console.log("Dane pobrane z backendu:", data);
+    
     allOffers = data;
 
     renderCarousel();

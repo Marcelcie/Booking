@@ -37,43 +37,7 @@
     <section class="details-hero">
       <div class="container">
         <div class="details-top">
-          <div>
-            <span class="details-badge">Hotel</span>
-            <h2>Hotel Kraków Premium</h2>
-            <p class="details-location">📍 Kraków, Polska</p>
-
-            <div class="details-stars-row">
-              <div class="offer-stars">
-                <span class="star filled">★</span>
-                <span class="star filled">★</span>
-                <span class="star filled">★</span>
-                <span class="star filled">★</span>
-                <span class="star filled">★</span>
-              </div>
-              <span class="offer-stars-text">5/5</span>
-            </div>
-          </div>
-
-          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
-            <button
-              class="favorite-btn active"
-              data-offer-id="oferta-1"
-              data-title="Hotel Kraków Premium"
-              data-location="Kraków"
-              data-type="Hotel"
-              data-price="420"
-              data-image="https://picsum.photos/seed/szczegoly1/1000/650"
-              data-link="oferta-szczegoly.html"
-              type="button"
-              style="position:static;"
-            >♡</button>
-
-            <div class="details-rating-box">
-              <p class="offer-rating-label">Fantastyczny</p>
-              <div class="offer-rating">9.4</div>
-              <p class="offer-reviews">1248 opinii</p>
-            </div>
-          </div>
+          <div id="details-header-content">Ładowanie...</div>
         </div>
       </div>
     </section>
@@ -81,16 +45,7 @@
     <section class="details-gallery section">
       <div class="container">
         <div class="gallery-grid">
-          <div class="gallery-main">
-            <img src="https://picsum.photos/seed/szczegoly1/1000/650" alt="Hotel Kraków Premium - zdjęcie główne" />
-          </div>
-
-          <div class="gallery-side">
-            <img src="https://picsum.photos/seed/szczegoly2/500/300" alt="Zdjęcie hotelu 2" />
-            <img src="https://picsum.photos/seed/szczegoly3/500/300" alt="Zdjęcie hotelu 3" />
-            <img src="https://picsum.photos/seed/szczegoly4/500/300" alt="Zdjęcie hotelu 4" />
-            <img src="https://picsum.photos/seed/szczegoly5/500/300" alt="Zdjęcie hotelu 5" />
-          </div>
+          <!-- Galeria dynamiczna -->
         </div>
       </div>
     </section>
@@ -99,65 +54,11 @@
       <div class="container details-layout">
 
         <div class="details-main">
-          <div class="details-card">
-            <h3>Opis obiektu</h3>
-            <p>
-              Hotel Kraków Premium to nowoczesny obiekt położony w centrum miasta, idealny zarówno dla turystów,
-              jak i osób podróżujących służbowo. Dzięki dogodnej lokalizacji goście mają szybki dostęp do rynku,
-              restauracji, atrakcji turystycznych oraz komunikacji miejskiej.
-            </p>
-            <p>
-              Obiekt oferuje komfortowe pokoje, wysokiej jakości wyposażenie oraz przyjazną atmosferę.
-              Na miejscu dostępne są liczne udogodnienia, które sprawiają, że pobyt jest wygodny i bezproblemowy.
-            </p>
-          </div>
-
-          <div class="details-card">
-            <h3>Najważniejsze udogodnienia</h3>
-            <div class="amenities-grid">
-              <div class="amenity-item">✅ Bezpłatne Wi-Fi</div>
-              <div class="amenity-item">✅ Parking</div>
-              <div class="amenity-item">✅ Śniadanie w cenie</div>
-              <div class="amenity-item">✅ Klimatyzacja</div>
-              <div class="amenity-item">✅ Recepcja 24h</div>
-              <div class="amenity-item">✅ Telewizor</div>
-              <div class="amenity-item">✅ Prywatna łazienka</div>
-              <div class="amenity-item">✅ Blisko centrum</div>
-            </div>
-          </div>
-
-          <div class="details-card">
-            <h3>Zasady pobytu</h3>
-            <div class="rules-list">
-              <p><strong>Zameldowanie:</strong> od 15:00</p>
-              <p><strong>Wymeldowanie:</strong> do 11:00</p>
-              <p><strong>Anulowanie:</strong> zgodnie z warunkami rezerwacji</p>
-              <p><strong>Zwierzęta:</strong> niedozwolone</p>
-              <p><strong>Palenie:</strong> zakaz palenia</p>
-            </div>
-          </div>
+          <div id="details-main-content"></div>
         </div>
 
         <aside class="booking-box">
-          <div class="booking-card">
-            <p class="booking-small">Cena od</p>
-            <h3>420 zł</h3>
-            <p class="booking-sub">za noc</p>
-
-            <div class="booking-info">
-              <p><strong>Ocena:</strong> 9.4/10</p>
-              <p><strong>Opinie:</strong> 1248</p>
-              <p><strong>Typ obiektu:</strong> Hotel</p>
-            </div>
-
-            <button type="button" class="booking-btn">
-              Zarezerwuj teraz
-            </button>
-
-            <button type="button" class="secondary-btn" onclick="window.location.href='oferty.html'">
-              Wróć do ofert
-            </button>
-          </div>
+          <div id="booking-box-content"></div>
         </aside>
 
       </div>
@@ -206,5 +107,6 @@
 
   <script src="../js/auth.js"></script>
   <script src="../js/favorites.js"></script>
+  <script src="../js/oferta-szczegoly.js"></script>
 </body>
 </html>
