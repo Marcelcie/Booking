@@ -126,19 +126,18 @@ function renderCarousel() {
 
   track.innerHTML = offers.map(offer => `
     <article class="offer-card">
-      <button
-        class="favorite-btn"
-        data-offer-id="${offer.id || offer.title}"
-        data-title="${offer.title}"
-        data-location="${offer.location}"
-        data-type="${offer.type}"
-        data-price="${offer.price}"
-        data-image="${offer.image_url}"
-        data-link="pages/oferta-szczegoly.html"
-        type="button"
-      >♡</button>
-
-      <div class="offer-image">
+      <div class="offer-image" style="position: relative;">
+        <button
+          class="favorite-btn"
+          data-offer-id="${offer.id || offer.title}"
+          data-title="${offer.title}"
+          data-location="${offer.location}"
+          data-type="${offer.type}"
+          data-price="${offer.price}"
+          data-image="${offer.image_url}"
+          data-link="pages/oferta-szczegoly.html"
+          type="button"
+        >♡</button>
         <img src="${offer.image_url}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/600/400';" />
       </div>
 

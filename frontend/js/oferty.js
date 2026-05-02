@@ -33,17 +33,88 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+let allFetchedOffers = [];
+
 // --- Dodane dynamiczne ładowanie ofert z bazy danych ---
 async function loadOfertyData() {
   try {
     const response = await fetch('http://127.0.0.1:8000/api/offers/');
     if (!response.ok) throw new Error('Błąd sieci');
-    const offers = await response.json();
-    renderOffers(offers);
+    allFetchedOffers = await response.json();
+    applyFilters();
   } catch (error) {
     console.error('Błąd ładowania ofert:', error);
     const container = document.getElementById('offersResults');
     if (container) container.innerHTML = '<p>Nie udało się pobrać ofert.</p>';
+  }
+}
+
+function applyFilters() {
+  const searchLocationInput = document.getElementById("search-location");
+  const priceInput = document.getElementById("priceRange");
+  const activePill = document.querySelector(".filter-pills .pill.active");
+  const sortSelect = document.getElementById("sort");
+  
+  let filtered = allFetchedOffers;
+  
+  // 1. Lokalizacja (ignorowanie polskich znaków np. krakow == kraków)
+  let locFilter = "";
+  if (searchLocationInput) {
+    locFilter = searchLocationInput.value.toLowerCase().trim();
+    const normalize = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ł/g, "l");
+    if (locFilter) {
+      const normalizedLocFilter = normalize(locFilter);
+      filtered = filtered.filter(offer => 
+        offer.location && normalize(offer.location.toLowerCase()).includes(normalizedLocFilter)
+      );
+    }
+  }
+
+  // 2. Cena
+  let priceFilter = null;
+  if (priceInput) {
+    priceFilter = parseInt(priceInput.value, 10);
+    filtered = filtered.filter(offer => offer.price <= priceFilter);
+  }
+
+  // 3. Typ obiektu
+  let typeFilter = "";
+  if (activePill && activePill.textContent !== "Wszystkie") {
+    typeFilter = activePill.textContent.toLowerCase();
+    filtered = filtered.filter(offer => offer.type && offer.type.toLowerCase() === typeFilter);
+  }
+
+  // 4. Sortowanie
+  if (sortSelect) {
+    const sortVal = sortSelect.value;
+    if (sortVal === "Najtańsze") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortVal === "Najdroższe") {
+      filtered.sort((a, b) => b.price - a.price);
+    } else if (sortVal === "Najwyżej oceniane") {
+      filtered.sort((a, b) => b.rating - a.rating);
+    } else if (sortVal === "Najpopularniejsze") {
+      filtered.sort((a, b) => b.reviews_count - a.reviews_count);
+    }
+  }
+
+  renderOffers(filtered);
+  updateActiveFilters(locFilter, priceFilter, typeFilter);
+}
+
+function updateActiveFilters(loc, price, type) {
+  const container = document.querySelector(".active-filters");
+  if (!container) return;
+  
+  container.innerHTML = "";
+  if (loc) {
+    container.innerHTML += `<span class="active-filter-tag">${loc.charAt(0).toUpperCase() + loc.slice(1)}</span>`;
+  }
+  if (price) {
+    container.innerHTML += `<span class="active-filter-tag">Do ${price} zł</span>`;
+  }
+  if (type) {
+    container.innerHTML += `<span class="active-filter-tag">${type.charAt(0).toUpperCase() + type.slice(1)}</span>`;
   }
 }
 
@@ -53,17 +124,16 @@ function renderOffers(offers) {
 
   container.innerHTML = offers.map(offer => `
     <div class="offer-result-card">
-      <button class="favorite-btn"
-        data-offer-id="${offer.id}"
-        data-title="${offer.title}"
-        data-location="${offer.location}"
-        data-type="${offer.type}"
-        data-price="${offer.price}"
-        data-image="${offer.image_url}"
-        data-link="oferta-szczegoly.html?id=${offer.id}"
-        type="button">♡</button>
-
-      <div class="offer-result-image">
+      <div class="offer-result-image" style="position: relative;">
+        <button class="favorite-btn"
+          data-offer-id="${offer.id}"
+          data-title="${offer.title}"
+          data-location="${offer.location}"
+          data-type="${offer.type}"
+          data-price="${offer.price}"
+          data-image="${offer.image_url}"
+          data-link="oferta-szczegoly.html?id=${offer.id}"
+          type="button">♡</button>
         <img src="${offer.image_url}" alt="${offer.title}" />
       </div>
 
@@ -102,8 +172,29 @@ function renderOffers(offers) {
       </div>
     </div>
   `).join('');
+
+  if (typeof window.bindFavoriteButtons === "function") {
+    window.bindFavoriteButtons();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Odczyt parametru wyszukiwania z adresu URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const locationParam = urlParams.get('location');
+  
+  if (locationParam) {
+    const searchLocationInput = document.getElementById("search-location");
+    if (searchLocationInput) searchLocationInput.value = locationParam;
+  }
+
+  // Obsługa przycisku "Zastosuj filtry" na stronie ofert
+  const filterBtn = document.querySelector(".filter-btn");
+  if (filterBtn) {
+    filterBtn.addEventListener("click", () => {
+      applyFilters();
+    });
+  }
+
   loadOfertyData();
 });

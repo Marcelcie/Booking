@@ -1,3 +1,13 @@
+window.addEventListener("load", () => {
+  const preloader = document.getElementById("global-preloader");
+  if (preloader) {
+    // Krótkie opóźnienie dla ładnego efektu
+    setTimeout(() => {
+      preloader.classList.add("hidden");
+    }, 400);
+  }
+});
+
 function getAuthToken() {
   return localStorage.getItem("bookspace_token");
 }
@@ -59,13 +69,24 @@ async function updateNavbar() {
 document.addEventListener("DOMContentLoaded", async () => {
   updateNavbar();
 
+  // ----- POKAZYWANIE/UKRYWANIE HASŁA -----
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("password");
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener("click", () => {
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+      togglePassword.textContent = type === "password" ? "👁️" : "🙈";
+    });
+  }
+
   // ----- LOGOWANIE -----
   const loginForm = document.getElementById("mock-login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const email = document.getElementById("email").value.trim();
+      const email = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
       if (!email || !password) {
@@ -108,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.preventDefault();
 
       const fullname = document.getElementById("fullname").value.trim();
-      const email = document.getElementById("email").value.trim();
+      const email = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
       const confirmPassword = document.getElementById("confirm-password").value.trim();
 
@@ -155,9 +176,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ----- ZAKŁADKA "MOJE KONTO" -----
   const accountPageName = document.getElementById("konto-user-name");
+  const accountPageName2 = document.getElementById("konto-user-name-2");
   const accountPageEmail = document.getElementById("konto-user-email");
+  const accountPageEmail2 = document.getElementById("konto-user-email-2");
 
-  if (accountPageName || accountPageEmail) {
+  if (accountPageName || accountPageEmail || accountPageName2 || accountPageEmail2) {
     const user = await fetchUserProfile();
 
     if (!user) {
@@ -167,6 +190,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (accountPageName) accountPageName.textContent = user.name;
+    if (accountPageName2) accountPageName2.textContent = user.name;
     if (accountPageEmail) accountPageEmail.textContent = user.email;
+    if (accountPageEmail2) accountPageEmail2.textContent = user.email;
   }
 });
