@@ -30,9 +30,11 @@ git clone [https://github.com/Marcelcie/Booking.git](https://github.com/Marcelci
 cd Booking
 ```
 
-### Podziękowania zespołowi za doprowadzenie projektu do końca
-  Skład:
-  * Frontend: Aleks Kapusta,Mateusz Żbikowski
-  * Backend: Piotr Baran, Marcel Cieśliński
-  * baza danych: Mateusz Bonifatiuk
-  * QA tester: Ksawery Justynowicz
+## 🤝 Zespół / Twórcy projektu
+
+Wielkie podziękowania dla całego zespołu za zaangażowanie, zarwane noce, walkę z bugami i dowiezienie tego projektu do samego końca. Kawał świetnej roboty! 🔥
+
+* **Frontend:** Aleks Kapusta, Mateusz Żbikowski
+* **Backend:** Piotr Baran, Marcel Cieśliński
+* **Baza danych:** Mateusz Bonifatiuk
+* **QA Tester:** Ksawery Justynowicz
