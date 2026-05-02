@@ -7,7 +7,7 @@ Witaj w repozytorium **BookSpace**! To w pełni zbrojona aplikacja do zarządzan
 System został zbudowany w oparciu o nowoczesny stack technologiczny:
 
 *   **Backend:** Python 3.13, Django 6.0, Django Rest Framework (DRF)
-*   **Autentykacja:** JSON Web Tokens (Simple JWT)
+*   **Autoryzacja:** JSON Web Tokens (Simple JWT)
 *   **Baza danych:** PostgreSQL (hostowana na Supabase)
 *   **Frontend:** HTML5, CSS3, Vanilla JS
 *   **Infrastruktura:** Docker, Gunicorn
