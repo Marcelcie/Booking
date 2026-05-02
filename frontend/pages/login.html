@@ -9,6 +9,11 @@
   <link rel="icon" type="image/png" href="../images/favicon.png" />
 </head>
 <body>
+  <!-- Global Preloader -->
+  <div id="global-preloader">
+    <div class="spinner"></div>
+  </div>
+
 
   <header class="header">
     <div class="container navbar">
@@ -67,13 +72,18 @@
 
           <form id="mock-login-form" class="login-form">
             <div class="form-group">
-              <label for="email">Adres e-mail</label>
-              <input type="email" id="email" placeholder="Wpisz adres e-mail" />
+              <label for="username">Nazwa użytkownika</label>
+              <input type="text" id="username" placeholder="Wpisz nazwę użytkownika" />
             </div>
 
-            <div class="form-group">
+<div class="form-group">
               <label for="password">Hasło</label>
-              <input type="password" id="password" placeholder="Wpisz hasło" />
+              <div class="password-wrapper" style="position: relative;">
+                <input type="password" id="password" placeholder="Wpisz hasło" style="width: 100%; padding-right: 40px;" />
+                <span id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                  👁️
+                </span>
+              </div>
             </div>
 
             <div class="login-options">
@@ -98,14 +108,12 @@
     </section>
   </main>
 
-  <footer class="simple-footer">
+    <footer class="simple-footer">
     <div class="container">
       <div class="simple-footer-grid">
         <div>
           <h3>BookSpace</h3>
-          <p>
-            Studencki projekt frontendu aplikacji do rezerwacji noclegów.
-          </p>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
         </div>
 
         <div>
@@ -118,16 +126,16 @@
 
         <div>
           <h3>Kategorie</h3>
-          <a href="oferty.html">Hotele</a>
-          <a href="oferty.html">Apartamenty</a>
-          <a href="oferty.html">Domki</a>
-          <a href="oferty.html">Wellness</a>
+          <a href="oferty.html?type=hotel">Hotele</a>
+          <a href="oferty.html?type=apartament">Apartamenty</a>
+          <a href="oferty.html?type=domek">Domki</a>
+          <a href="oferty.html?type=wellness">Wellness</a>
         </div>
 
         <div>
           <h3>Kontakt</h3>
-          <p>Email: kontakt@bookspace.pl</p>
-          <p>Tel: +48 123 456 789</p>
+          <p>Email: <a href="mailto:kontakt@bookspace.pl">kontakt@bookspace.pl</a></p>
+          <p>Tel: <a href="tel:+48123456789">+48 123 456 789</a></p>
           <p>Polska</p>
         </div>
       </div>

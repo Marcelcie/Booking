@@ -11,6 +11,43 @@ body {
   line-height: 1.6;
 }
 
+/* GLOBAL PRELOADER */
+#global-preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f4f7fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#global-preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#global-preloader .spinner {
+  width: 80px;
+  height: 80px;
+  background-image: url('../images/favicon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
 img {
   width: 100%;
   display: block;

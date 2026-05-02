@@ -39,7 +39,6 @@ function renderOfferDetails(offer) {
         </div>
       </div>
       <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
-        <button class="favorite-btn active" type="button" style="position:static;">♡</button>
         <div class="details-rating-box">
           <p class="offer-rating-label">${(offer.rating >= 9.0 ? 'Fantastyczny' : 'Bardzo dobry') || 'Bardzo dobry'}</p>
           <div class="offer-rating">${offer.rating}</div>
@@ -57,7 +56,16 @@ function renderOfferDetails(offer) {
   const gallery = document.querySelector(".gallery-grid");
   if (gallery) {
     gallery.innerHTML = `
-      <div class="gallery-main">
+      <div class="gallery-main" style="position: relative;">
+        <button class="favorite-btn"
+          data-offer-id="${offer.id}"
+          data-title="${offer.title}"
+          data-location="${offer.location}"
+          data-type="${offer.type}"
+          data-price="${offer.price}"
+          data-image="${offer.image_url}"
+          data-link="oferta-szczegoly.html?id=${offer.id}"
+          type="button">♡</button>
         <img src="${offer.image_url}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/1000/650';" />
       </div>
       <div class="gallery-side">
@@ -104,5 +112,9 @@ function renderOfferDetails(offer) {
         <button type="button" class="secondary-btn" onclick="window.location.href='oferty.html'">Wróć do ofert</button>
       </div>
     `;
+  }
+
+  if (typeof window.bindFavoriteButtons === "function") {
+    window.bindFavoriteButtons();
   }
 }
