@@ -28,3 +28,11 @@ Instalacja jest banalnie prosta dzięki konteneryzacji.
 ```bash
 git clone [https://github.com/Marcelcie/Booking.git](https://github.com/Marcelcie/Booking.git)
 cd Booking
+```
+
+### Podziękowania zespołowi za doprowadzenie projektu do końca
+  Skład:
+  * Frontend: Aleks Kapusta,Mateusz Żbikowski
+  * Backend: Piotr Baran, Marcel Cieśliński
+  * baza danych: Mateusz Bonifatiuk
+  * QA tester: Ksawery Justynowicz
