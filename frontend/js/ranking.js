@@ -1,12 +1,22 @@
-const rankingData = {
+let rankingData = {
   topRated: [],
   popular: [],
   cheapest: [],
   premium: []
 };
 
-const rankingList = document.getElementById("ranking-list");
-const rankingTabs = document.querySelectorAll(".ranking-tab");
+let rankingList = document.getElementById("ranking-list");
+let rankingTabs = document.querySelectorAll(".ranking-tab");
+
+
+function Rating(rating){
+  if(rating >= 9.5) return "Fantastyczny";
+  if(rating >= 9.0) return "Wspaniały";
+  if(rating >= 8.0) return "Bardzo dobry";
+  if(rating >= 7.0) return "Dobry";
+  return "Przyzwoity";
+}
+
 
 function renderStars(stars) {
   let result = "";
@@ -40,7 +50,7 @@ function renderRanking(tabName) {
       <div class="ranking-position ${getPlaceClass(index)}">${index + 1}</div>
 
       <div class="ranking-image">
-        <img src="${item.image}" alt="${item.title}" />
+        <img src="${item.image_url}" alt="${item.title}" />
       </div>
 
       <div class="ranking-content">
@@ -60,11 +70,11 @@ function renderRanking(tabName) {
         </div>
 
         <div class="ranking-side">
-          <p class="offer-rating-label">${item.ratingLabel}</p>
+          <p class="offer-rating-label">${Rating(item.rating)}</p>
           <div class="offer-rating">${item.rating}</div>
-          <p class="offer-reviews">${item.reviews} opinii</p>
+          <p class="offer-reviews">${item.reviews_count} opinii</p>
           <strong class="ranking-price">Od ${item.price} zł</strong>
-          <a href="oferta-szczegoly.html" class="offer-btn">Zobacz ofertę</a>
+          <a href="oferta-szczegoly.html?id=${item.id}" class="offer-btn">Zobacz ofertę</a>
         </div>
       </div>
     </article>
