@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Offer, Tag, Category, Booking, Favorite, UserProfile
+from .models import Offer, Tag, Category, Booking, Favorite, UserProfile, ContactMessage
 
 admin.site.register(Tag)
 admin.site.register(Category)
@@ -28,3 +28,22 @@ class OfferAdmin(admin.ModelAdmin):
             'fields': ('description', 'image_url', 'tags')
         }),
     )
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'created_at')
+    list_filter = ('subject', 'created_at')
+    search_fields = ('name', 'email', 'subject', 'message')
+    readonly_fields = ('name', 'email', 'subject', 'message', 'created_at')
+
+    fieldsets = (
+        ('Podstawowe informacje', {
+            'fields': ('name', 'email', 'subject')
+        }),
+        ('Szczegóły wiadomości', {
+            'fields': ('message', 'created_at')
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return False

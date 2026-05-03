@@ -80,3 +80,18 @@ class UserProfile(models.Model):
         
     def __str__(self):
         return f"Profil: {self.user.username}"
+
+# --- KONTAKT ---
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Imię i nazwisko")
+    email = models.EmailField(verbose_name="Adres e-mail")
+    subject = models.CharField(max_length=200, verbose_name="Temat")
+    message = models.TextField(verbose_name="Wiadomość")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data wysłania")
+
+    class Meta:
+        verbose_name = "Wiadomość kontaktowa"
+        verbose_name_plural = "Wiadomości kontaktowe"
+
+    def __str__(self):
+        return f"{self.subject} - od: {self.name}"

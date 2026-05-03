@@ -2,6 +2,13 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .models import Offer, Category, Tag
+from .models import ContactMessage
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    topic = serializers.CharField(source='subject', required=True)
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'topic', 'message']
 
 class OfferSerializer(serializers.ModelSerializer):
     tags_list = serializers.SlugRelatedField(

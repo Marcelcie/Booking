@@ -138,3 +138,18 @@ class RankingGroupedView(APIView):
             'premium': OfferSerializer(Offer.objects.filter(stars=5).order_by('-rating')[:5], many=True).data
         }
         return Response(data)
+
+class ContactMessageView(APIView):
+    """
+    Formularz kontaktowy
+    """
+    authentication_classes = []
+    permission_classes = []
+    
+    def post(self, request):
+        serializer = ContactMessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'Wiadomosc zostala wyslana pomyślnie.'},status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
