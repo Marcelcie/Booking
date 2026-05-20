@@ -108,7 +108,7 @@ function renderOfferDetails(offer) {
           <p><strong>Opinie:</strong> ${offer.reviews_count}</p>
           <p><strong>Typ obiektu:</strong> ${offer.type}</p>
         </div>
-        <button type="button" class="booking-btn">Zarezerwuj teraz</button>
+        <button type="button" class="booking-btn" onclick="window.location.href='rezerwacja-wybor.html?id=${offer.id}'">Zarezerwuj teraz</button>
         <button type="button" class="secondary-btn" onclick="window.location.href='oferty.html'">Wróć do ofert</button>
       </div>
     `;

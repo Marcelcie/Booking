@@ -10,7 +10,8 @@ from .views import (
     RankingGroupedView,
     FavoriteListView,
     FavoriteToggleView,
-    ContactMessageView
+    ContactMessageView,
+    BookingListCreateView
 )
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),    
     path('me/', UserProfileView.as_view(), name='user-profile'),
     path('contact/',ContactMessageView.as_view(),name='contact'),
+    path('bookings/', BookingListCreateView.as_view(), name='booking-list-create'),
 ]

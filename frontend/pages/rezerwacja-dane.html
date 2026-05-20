@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rezerwacja - dane | BookSpace</title>
+
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/rezerwacja-dane.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+  <div id="global-preloader">
+    <div class="spinner"></div>
+  </div>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display:none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="booking-hero">
+      <div class="container">
+        <div class="steps">
+          <div class="step done">
+            <span class="step-number">1</span>
+            <span>Twój wybór</span>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step active">
+            <span class="step-number">2</span>
+            <span>Twoje dane</span>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Finalizacja rezerwacji</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="booking-page section">
+      <div class="container booking-layout">
+        <div class="booking-main">
+          <div class="booking-card">
+            <h2>Wprowadź dane rezerwacji</h2>
+            <p class="booking-subtext">
+              Uzupełnij dane kontaktowe potrzebne do potwierdzenia pobytu.
+            </p>
+
+            <form id="booking-data-form" class="booking-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="firstName">Imię</label>
+                  <input type="text" id="firstName" placeholder="Jan" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="lastName">Nazwisko</label>
+                  <input type="text" id="lastName" placeholder="Kowalski" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Adres e-mail</label>
+                  <input type="email" id="email" placeholder="jan@example.com" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">Numer telefonu</label>
+                  <input type="text" id="phone" placeholder="+48 123 456 789" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="country">Kraj / region</label>
+                <select id="country">
+                  <option value="Polska" selected>Polska</option>
+                  <option value="Niemcy">Niemcy</option>
+                  <option value="Czechy">Czechy</option>
+                  <option value="Słowacja">Słowacja</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="notes">Specjalne życzenia</label>
+                <textarea
+                  id="notes"
+                  rows="5"
+                  placeholder="Np. późniejszy check-in, pokój na wyższym piętrze..."
+                ></textarea>
+              </div>
+
+              <label class="checkbox-row">
+                <input type="checkbox" id="emailConfirmation" />
+                <span>Chcę otrzymać potwierdzenie i informacje o rezerwacji na adres e-mail.</span>
+              </label>
+
+              <label class="checkbox-row">
+                <input type="checkbox" id="termsAccepted" required />
+                <span>Akceptuję warunki rezerwacji i politykę prywatności.</span>
+              </label>
+
+              <p id="booking-data-message" style="font-weight: bold;"></p>
+
+              <div class="form-actions">
+                <button type="button" id="back-to-choice-btn" class="back-btn">
+                  Wróć
+                </button>
+
+                <button type="submit" class="next-btn">
+                  Przejdź do płatności
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <aside class="booking-sidebar">
+          <div class="summary-card">
+            <h3>Podsumowanie rezerwacji</h3>
+
+            <div class="summary-block">
+              <p><strong>Obiekt:</strong> <span id="summary-object">---</span></p>
+              <p><strong>Lokalizacja:</strong> <span id="summary-location">---</span></p>
+              <p><strong>Termin:</strong> <span id="summary-term">---</span></p>
+              <p><strong>Długość pobytu:</strong> <span id="summary-nights">---</span></p>
+              <p><strong>Goście:</strong> <span id="summary-guests">---</span></p>
+              <p><strong>Pokoje:</strong> <span id="summary-rooms">---</span></p>
+              <p><strong>Pokój:</strong> <span id="summary-room-type">---</span></p>
+            </div>
+
+            <div class="summary-block">
+              <p class="summary-price-label">Do zapłaty</p>
+              <p id="summary-price" class="summary-price">0 zł</p>
+              <small>Zawiera opłaty i podatki</small>
+            </div>
+
+            <div class="info-box">
+              <h4>Informacja</h4>
+              <p>
+                Na następnym etapie wybierzesz metodę płatności i finalizujesz rezerwację.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/rezerwacja-dane.js"></script>
+</body>
+</html>
