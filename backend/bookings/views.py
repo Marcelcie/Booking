@@ -4,11 +4,13 @@ from rest_framework import status
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
-from .models import Offer, Category
+from .models import Offer, Category, Booking
 from .serializers import (
     OfferSerializer, 
     RegisterSerializer, 
-    LoginSerializer
+    LoginSerializer,
+    ContactMessageSerializer,
+    BookingSerializer
 )
 
 # --- REJESTRACJA I LOGOWANIE ---
@@ -138,3 +140,37 @@ class RankingGroupedView(APIView):
             'premium': OfferSerializer(Offer.objects.filter(stars=5).order_by('-rating')[:5], many=True).data
         }
         return Response(data)
+
+class ContactMessageView(APIView):
+    """
+    Formularz kontaktowy
+    """
+    authentication_classes = []
+    permission_classes = []
+    
+    def post(self, request):
+        serializer = ContactMessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'Wiadomosc zostala wyslana pomyślnie.'},status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookingListCreateView(APIView):
+    """
+    Lista i tworzenie rezerwacji dla zalogowanego użytkownika
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
+        serializer = BookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = BookingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

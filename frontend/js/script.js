@@ -135,7 +135,7 @@ function renderCarousel() {
           data-type="${offer.type}"
           data-price="${offer.price}"
           data-image="${offer.image_url}"
-          data-link="pages/oferta-szczegoly.html"
+          data-link="pages/oferta-szczegoly.html?id=${offer.id}"
           type="button"
         >♡</button>
         <img src="${offer.image_url}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/600/400';" />
@@ -169,7 +169,7 @@ function renderCarousel() {
           <div class="offer-price">
             <p>Od</p>
             <strong>${offer.price} zł</strong>
-            <a href="pages/oferta-szczegoly.html" class="offer-btn">Zobacz ofertę</a>
+            <a href="pages/oferta-szczegoly.html?id=${offer.id}" class="offer-btn">Zobacz ofertę</a>
           </div>
         </div>
       </div>

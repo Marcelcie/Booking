@@ -161,24 +161,8 @@
             </div>
 
             <div class="bookings-grid">
-              <div class="booking-card">
-                <div class="booking-top">
-                  <h4>Hotel Kraków Premium</h4>
-                  <span class="booking-status active">Aktywna</span>
-                </div>
-                <p><strong>Termin:</strong> 12.07.2026 – 15.07.2026</p>
-                <p><strong>Lokalizacja:</strong> Kraków</p>
-                <p><strong>Liczba gości:</strong> 2 osoby</p>
-              </div>
-
-              <div class="booking-card">
-                <div class="booking-top">
-                  <h4>Apartament Gdańsk Sea View</h4>
-                  <span class="booking-status active">Aktywna</span>
-                </div>
-                <p><strong>Termin:</strong> 21.08.2026 – 25.08.2026</p>
-                <p><strong>Lokalizacja:</strong> Gdańsk</p>
-                <p><strong>Liczba gości:</strong> 3 osoby</p>
+              <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #4b5563;">
+                Ładowanie rezerwacji...
               </div>
             </div>
           </div>
@@ -270,6 +254,7 @@
 
   <script src="../js/auth.js"></script>
   <script src="../js/favorites.js"></script>
+  <script src="../js/konto.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const user = localStorage.getItem("bookspace_user");

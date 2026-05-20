@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import Offer, Category, Tag
+from .models import Offer, Category, Tag, ContactMessage, Booking
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    topic = serializers.CharField(source='subject', required=True)
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'topic', 'message']
 
 class OfferSerializer(serializers.ModelSerializer):
     tags_list = serializers.SlugRelatedField(
@@ -14,6 +20,13 @@ class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = '__all__'
+
+class BookingSerializer(serializers.ModelSerializer):
+    offer_details = OfferSerializer(source='offer', read_only=True)
+    
+    class Meta:
+        model = Booking
+        fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 'total_price', 'created_at']
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()

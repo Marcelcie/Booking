@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rezerwacja - płatność | BookSpace</title>
+
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/rezerwacja-platnosc.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+  <div id="global-preloader">
+    <div class="spinner"></div>
+  </div>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display:none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="booking-hero">
+      <div class="container">
+        <div class="steps">
+          <div class="step done">
+            <span class="step-number">1</span>
+            <span>Twój wybór</span>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step done">
+            <span class="step-number">2</span>
+            <span>Twoje dane</span>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step active">
+            <span class="step-number">3</span>
+            <span>Finalizacja rezerwacji</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="booking-page section">
+      <div class="container booking-layout">
+
+        <aside class="payment-sidebar">
+          <div class="hotel-card">
+            <img
+              id="payment-offer-image"
+              src="https://picsum.photos/seed/rezerwacja2/600/400"
+              alt="Wybrana oferta"
+            />
+
+            <div class="hotel-card-content">
+              <h3 id="payment-offer-title">Ładowanie oferty...</h3>
+              <p id="payment-offer-location">📍 ---</p>
+              <p><strong>Termin:</strong> <span id="payment-term">---</span></p>
+              <p><strong>Goście:</strong> <span id="payment-guests">---</span></p>
+              <p><strong>Pokój:</strong> <span id="payment-room-type">---</span></p>
+            </div>
+          </div>
+
+          <div class="price-card">
+            <h3>Szczegóły ceny</h3>
+
+            <div class="price-row">
+              <span id="payment-nights-label">0 nocy</span>
+              <strong id="payment-stay-price">0 zł</strong>
+            </div>
+
+            <div class="price-row">
+              <span>Podatki i opłaty</span>
+              <strong>W cenie</strong>
+            </div>
+
+            <div class="price-row total">
+              <span>Suma</span>
+              <strong id="payment-total-price">0 zł</strong>
+            </div>
+          </div>
+        </aside>
+
+        <div class="payment-main">
+          <div class="payment-card">
+            <h2>Wybierz metodę płatności</h2>
+            <p class="payment-subtext">
+              Dokończ rezerwację i wybierz preferowaną formę płatności.
+            </p>
+
+            <form id="payment-form">
+              <div class="payment-methods">
+                <label class="payment-method selected">
+                  <input type="radio" name="payment" value="card" checked />
+                  <div class="payment-method-box">
+                    <div class="payment-logo">💳</div>
+                    <span>Karta płatnicza</span>
+                  </div>
+                </label>
+
+                <label class="payment-method">
+                <input type="radio" name="payment" value="paypal" />
+                <div class="payment-method-box">
+                    <img src="../images/paypal.png" alt="PayPal" class="payment-brand-logo paypal-logo" />
+                    <span>PayPal</span>
+                </div>
+                </label>
+
+                <label class="payment-method">
+                <input type="radio" name="payment" value="blik" />
+                <div class="payment-method-box">
+                    <img src="../images/blik.png" alt="BLIK" class="payment-brand-logo blik-logo" />
+                    <span>BLIK</span>
+                </div>
+                </label>
+
+                <label class="payment-method">
+                  <input type="radio" name="payment" value="transfer" />
+                  <div class="payment-method-box">
+                    <div class="payment-logo">🏦</div>
+                    <span>Przelew online</span>
+                  </div>
+                </label>
+              </div>
+
+              <div id="card-payment-fields" class="payment-form">
+                <div class="form-group">
+                  <label for="cardName">Imię i nazwisko na karcie</label>
+                  <input type="text" id="cardName" placeholder="Jan Kowalski" />
+                </div>
+
+                <div class="form-group">
+                  <label for="cardNumber">Numer karty</label>
+                  <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="expiry">Data ważności</label>
+                    <input type="text" id="expiry" placeholder="MM/RR" maxlength="5" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" placeholder="123" maxlength="3" />
+                  </div>
+                </div>
+              </div>
+
+              <div id="blik-payment-fields" class="payment-form" style="display:none;">
+                <div class="form-group">
+                  <label for="blikCode">Kod BLIK</label>
+                  <input type="text" id="blikCode" placeholder="Wpisz 6-cyfrowy kod BLIK" maxlength="6" />
+                </div>
+
+                <div class="confirm-box">
+                  <h3>Płatność BLIK</h3>
+                  <p>
+                    Wpisz 6-cyfrowy kod BLIK z aplikacji bankowej. To jest wersja pokazowa,
+                    więc płatność nie zostanie naprawdę pobrana.
+                  </p>
+                </div>
+              </div>
+
+              <div id="paypal-payment-info" class="confirm-box" style="display:none;">
+                <h3>PayPal</h3>
+                <p>
+                  Po kliknięciu finalizacji użytkownik zostałby przekierowany do PayPal.
+                  W tej wersji frontendowej rezerwacja zostanie potwierdzona pokazowo.
+                </p>
+              </div>
+
+              <div id="transfer-payment-info" class="confirm-box" style="display:none;">
+                <h3>Przelew online</h3>
+                <p>
+                  Po kliknięciu finalizacji użytkownik zostałby przekierowany do płatności bankowej.
+                  W tej wersji frontendowej rezerwacja zostanie zapisana pokazowo.
+                </p>
+              </div>
+
+              <div class="confirm-box">
+                <h3>Przed finalizacją</h3>
+                <ul>
+                  <li>sprawdź poprawność danych rezerwacji,</li>
+                  <li>upewnij się, że wybrana metoda płatności jest poprawna,</li>
+                  <li>po kliknięciu rezerwacja zostanie potwierdzona pokazowo.</li>
+                </ul>
+              </div>
+
+              <p id="payment-message" style="font-weight:bold;"></p>
+
+              <div class="form-actions">
+                <button type="button" id="back-to-data-btn" class="back-btn">
+                  Wróć
+                </button>
+
+                <button type="submit" class="finish-btn">
+                  Finalizuj rezerwację
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/rezerwacja-platnosc.js"></script>
+</body>
+</html>

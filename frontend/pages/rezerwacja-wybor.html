@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rezerwacja - wybór | BookSpace</title>
+
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/rezerwacja-wybor.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+</head>
+<body>
+  <div id="global-preloader">
+    <div class="spinner"></div>
+  </div>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo">BookSpace</h1>
+
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display:none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="booking-hero">
+      <div class="container">
+        <div class="steps">
+          <div class="step active">
+            <span class="step-number">1</span>
+            <span>Twój wybór</span>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Twoje dane</span>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Finalizacja rezerwacji</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="booking-page section">
+      <div class="container booking-layout">
+
+        <div class="booking-main">
+          <div class="booking-card">
+            <h2>Wybierz szczegóły rezerwacji</h2>
+            <p class="booking-subtext">
+              Ustal termin pobytu, liczbę gości i wariant pokoju.
+            </p>
+
+            <form id="booking-choice-form" class="booking-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="checkin">Data zameldowania</label>
+                  <input type="date" id="checkin" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="checkout">Data wymeldowania</label>
+                  <input type="date" id="checkout" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="guests">Liczba gości</label>
+                  <select id="guests">
+                    <option value="1">1 osoba</option>
+                    <option value="2" selected>2 osoby</option>
+                    <option value="3">3 osoby</option>
+                    <option value="4">4 osoby</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="rooms">Liczba pokoi</label>
+                  <select id="rooms">
+                    <option value="1" selected>1 pokój</option>
+                    <option value="2">2 pokoje</option>
+                    <option value="3">3 pokoje</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Wybierz wariant pokoju</label>
+
+                <div class="room-options">
+                  <label class="room-option active-option">
+                    <input type="radio" name="roomType" value="standard" checked />
+                    <div class="room-option-box">
+                      <div>
+                        <h3>Pokój Standard</h3>
+                        <p>1 duże łóżko • bezpłatne Wi-Fi • śniadanie</p>
+                      </div>
+                      <strong id="standard-price">---</strong>
+                    </div>
+                  </label>
+
+                  <label class="room-option">
+                    <input type="radio" name="roomType" value="deluxe" />
+                    <div class="room-option-box">
+                      <div>
+                        <h3>Pokój Deluxe</h3>
+                        <p>większa przestrzeń • widok • śniadanie</p>
+                      </div>
+                      <strong id="deluxe-price">---</strong>
+                    </div>
+                  </label>
+
+                  <label class="room-option">
+                    <input type="radio" name="roomType" value="premium" />
+                    <div class="room-option-box">
+                      <div>
+                        <h3>Apartament Premium</h3>
+                        <p>salon • balkon • śniadanie premium</p>
+                      </div>
+                      <strong id="premium-price">---</strong>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" id="back-to-offer-btn" class="back-btn">
+                  Wróć do oferty
+                </button>
+
+                <button type="submit" class="next-btn">
+                  Dalej
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <aside class="booking-sidebar">
+          <div class="summary-card">
+            <img
+              id="summary-image"
+              src="https://picsum.photos/seed/rezerwacja1/600/400"
+              alt="Wybrana oferta"
+            />
+
+            <div class="summary-content">
+              <span id="summary-type" class="summary-type">---</span>
+              <h3 id="summary-title">Ładowanie oferty...</h3>
+              <p id="summary-location" class="summary-location">📍 ---</p>
+
+              <div class="summary-rating-row">
+                <span id="summary-rating-label" class="summary-rating-label">---</span>
+                <span id="summary-rating" class="summary-rating">---</span>
+              </div>
+
+              <div id="summary-stay" class="summary-section">
+                <h4>Twój pobyt</h4>
+                <p><strong>Zameldowanie:</strong> ---</p>
+                <p><strong>Wymeldowanie:</strong> ---</p>
+                <p><strong>Długość pobytu:</strong> 0 nocy</p>
+                <p><strong>Goście:</strong> 2 osoby</p>
+                <p><strong>Pokoje:</strong> 1 pokój</p>
+                <p><strong>Wariant:</strong> Pokój Standard</p>
+              </div>
+
+              <div class="summary-section total-section">
+                <p class="total-label">Łączna cena</p>
+                <p id="summary-total-price" class="total-price">0 zł</p>
+                <small>Zawiera opłaty i podatki</small>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-grid">
+        <div>
+          <h3>BookSpace</h3>
+          <p>Studencki projekt frontendu aplikacji do rezerwacji noclegów.</p>
+        </div>
+
+        <div>
+          <h3>Nawigacja</h3>
+          <a href="../index.html">Strona główna</a>
+          <a href="oferty.html">Oferty</a>
+          <a href="ranking.html">Ranking</a>
+          <a href="kontakt.html">Kontakt</a>
+        </div>
+
+        <div>
+          <h3>Kategorie</h3>
+          <a href="oferty.html">Hotele</a>
+          <a href="oferty.html">Apartamenty</a>
+          <a href="oferty.html">Domki</a>
+          <a href="oferty.html">Wellness</a>
+        </div>
+
+        <div>
+          <h3>Kontakt</h3>
+          <p>Email: kontakt@bookspace.pl</p>
+          <p>Tel: +48 123 456 789</p>
+          <p>Polska</p>
+        </div>
+      </div>
+
+      <div class="footer-line"></div>
+
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/rezerwacja-wybor.js"></script>
+</body>
+</html>
