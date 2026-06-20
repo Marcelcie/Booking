@@ -730,22 +730,32 @@ button {
   margin-bottom: 12px;
 }
 
-.project-card p {
-  color: #4b5563;
-  font-size: 15px;
-  line-height: 1.6;
+.discovery-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
 }
 
-.project-card p a {
+.discovery-tag {
+  background-color: #ffffff;
   color: #1e88e5;
-  text-decoration: none;
+  border: 1px solid #d9e8fb;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 600;
-  transition: color 0.2s ease;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.project-card p a:hover {
-  color: #1565c0;
-  text-decoration: underline;
+.discovery-tag:hover {
+  background-color: #1e88e5;
+  color: #ffffff;
+  border-color: #1e88e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(30, 136, 229, 0.15);
 }
 
 /* SIMPLE FOOTER */
