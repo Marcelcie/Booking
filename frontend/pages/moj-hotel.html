@@ -200,9 +200,13 @@
           <input type="number" id="offer-stars" min="1" max="5" value="3" />
         </div>
         <div class="form-group">
-          <label for="offer-image">Link do zdjęcia (URL)</label>
+          <label for="offer-image-file">Wgraj zdjęcie z dysku</label>
+          <input type="file" id="offer-image-file" accept="image/*" />
+        </div>
+        <div class="form-group">
+          <label for="offer-image">Lub podaj link do zdjęcia (URL)</label>
           <input type="url" id="offer-image" placeholder="https://images.unsplash.com/..." />
-          <p class="form-hint">Wklej link do zdjęcia z Unsplash lub innego serwisu.</p>
+          <p class="form-hint">Możesz wgrać plik z komputera LUB wkleić link URL.</p>
         </div>
         <div class="form-group">
           <label for="offer-tags">Tagi (oddzielone przecinkiem)</label>

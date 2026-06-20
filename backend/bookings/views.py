@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Sum, Count
-from .models import Offer, Category, Booking, Favorite, UserProfile, Notification
+from .models import Offer, Category, Tag, Booking, Favorite, UserProfile, Notification
 from .serializers import (
     OfferSerializer, 
     RegisterSerializer, 
@@ -329,6 +329,8 @@ class OwnerOfferListView(APIView):
             category_name = data.get('category', 'Inne')
             category, _ = Category.objects.get_or_create(display_name=category_name, defaults={'name': category_name.lower()})
             
+            image_file = request.FILES.get('image')
+            
             offer = Offer.objects.create(
                 owner=request.user,
                 category=category,
@@ -339,8 +341,31 @@ class OwnerOfferListView(APIView):
                 price=data.get('price', 100),
                 rating=0.0,
                 stars=data.get('stars', 3),
-                image_url=data.get('image_url', 'https://images.unsplash.com/photo-1566073771259-6a8506099945')
+                image_url=data.get('image_url', ''),
+                image=image_file
             )
+            
+            # Obsługa tagów
+            tags_raw = data.get('tags')
+            if tags_raw:
+                tags_list = []
+                if isinstance(tags_raw, str):
+                    if tags_raw.startswith('[') and tags_raw.endswith(']'):
+                        import json
+                        try:
+                            tags_list = json.loads(tags_raw)
+                        except Exception:
+                            tags_list = [t.strip() for t in tags_raw.split(',') if t.strip()]
+                    else:
+                        tags_list = [t.strip() for t in tags_raw.split(',') if t.strip()]
+                elif isinstance(tags_raw, list):
+                    tags_list = tags_raw
+                
+                for tag_name in tags_list:
+                    if tag_name:
+                        tag, _ = Tag.objects.get_or_create(name=str(tag_name).lower().strip())
+                        offer.tags.add(tag)
+                        
             return Response(OfferSerializer(offer).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -361,11 +386,37 @@ class OwnerOfferDetailView(APIView):
             if 'description' in data: offer.description = data['description']
             if 'stars' in data: offer.stars = int(data['stars'])
             if 'image_url' in data: offer.image_url = data['image_url']
+            
+            if 'image' in request.FILES:
+                offer.image = request.FILES['image']
+            
             if 'category' in data:
                 cat, _ = Category.objects.get_or_create(display_name=data['category'], defaults={'name': data['category'].lower()})
                 offer.category = cat
                 
             offer.save()
+            
+            if 'tags' in data:
+                offer.tags.clear()
+                tags_raw = data['tags']
+                tags_list = []
+                if isinstance(tags_raw, str):
+                    if tags_raw.startswith('[') and tags_raw.endswith(']'):
+                        import json
+                        try:
+                            tags_list = json.loads(tags_raw)
+                        except Exception:
+                            tags_list = [t.strip() for t in tags_raw.split(',') if t.strip()]
+                    else:
+                        tags_list = [t.strip() for t in tags_raw.split(',') if t.strip()]
+                elif isinstance(tags_raw, list):
+                    tags_list = tags_raw
+                
+                for tag_name in tags_list:
+                    if tag_name:
+                        tag, _ = Tag.objects.get_or_create(name=str(tag_name).lower().strip())
+                        offer.tags.add(tag)
+                        
             return Response(OfferSerializer(offer).data)
         except Offer.DoesNotExist:
             return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)

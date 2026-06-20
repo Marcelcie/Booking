@@ -57,7 +57,10 @@ async function refreshAccessToken() {
 async function fetchWithAuth(url, options = {}) {
   const token = getAuthToken();
   if (!token) { window.location.href = getLoginPath(); return null; }
-  const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, ...(options.headers || {}) };
+  const headers = { "Authorization": `Bearer ${token}`, ...(options.headers || {}) };
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
   let response = await fetch(url, { ...options, headers });
   if (response.status === 401) {
     const refreshed = await refreshAccessToken();

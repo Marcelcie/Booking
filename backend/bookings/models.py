@@ -38,7 +38,8 @@ class Offer(models.Model):
     rating = models.FloatField()
     stars = models.IntegerField()
     reviews_count = models.IntegerField(default=0)
-    image_url = models.URLField(max_length=1000)
+    image_url = models.URLField(max_length=1000, blank=True, null=True)
+    image = models.ImageField(upload_to='offers/', null=True, blank=True, verbose_name="Zdjęcie")
     tags = models.ManyToManyField(Tag, related_name='offers')
     
     class Meta:

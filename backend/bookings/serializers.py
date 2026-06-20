@@ -28,6 +28,16 @@ class OfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = '__all__'
     
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.image:
+            request = self.context.get('request')
+            if request:
+                data['image_url'] = request.build_absolute_uri(instance.image.url)
+            else:
+                data['image_url'] = instance.image.url
+        return data
+
     def get_is_available(self, obj):
         """Domyślnie True, chyba że kontekst zawiera daty do sprawdzenia."""
         check_in = self.context.get('check_in')

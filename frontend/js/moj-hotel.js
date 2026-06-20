@@ -148,6 +148,8 @@ async function loadOwnerBookings(page = 1) {
 function openOfferModal() {
   currentEditOfferId = null;
   document.getElementById("offer-form").reset();
+  const fileInput = document.getElementById("offer-image-file");
+  if (fileInput) fileInput.value = "";
   document.getElementById("modal-title").textContent = "Dodaj nowy obiekt";
   document.getElementById("offer-modal").style.display = "flex";
 }
@@ -170,6 +172,8 @@ function editOffer(offer) {
   document.getElementById("offer-price").value       = offer.price || '';
   document.getElementById("offer-stars").value       = offer.stars || 3;
   document.getElementById("offer-image").value       = offer.image_url || '';
+  const fileInput = document.getElementById("offer-image-file");
+  if (fileInput) fileInput.value = "";
   document.getElementById("offer-description").value = offer.description || '';
   document.getElementById("offer-tags").value        = (offer.tags_list || []).join(', ');
   document.getElementById("modal-title").textContent = "Edytuj obiekt";
@@ -202,17 +206,23 @@ document.getElementById("offer-form").addEventListener("submit", async (e) => {
   const tagsRaw = document.getElementById("offer-tags").value.trim();
   const tagsArr = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-  const payload = {
-    title:       document.getElementById("offer-title").value.trim(),
-    location:    document.getElementById("offer-location").value.trim(),
-    type:        document.getElementById("offer-type").value,
-    category:    document.getElementById("offer-category").value.trim(),
-    price:       Number(document.getElementById("offer-price").value),
-    stars:       Number(document.getElementById("offer-stars").value),
-    image_url:   document.getElementById("offer-image").value.trim(),
-    description: document.getElementById("offer-description").value.trim(),
-    tags:        tagsArr,
-  };
+  const formData = new FormData();
+  formData.append("title", document.getElementById("offer-title").value.trim());
+  formData.append("location", document.getElementById("offer-location").value.trim());
+  formData.append("type", document.getElementById("offer-type").value);
+  formData.append("category", document.getElementById("offer-category").value.trim());
+  formData.append("price", Number(document.getElementById("offer-price").value));
+  formData.append("stars", Number(document.getElementById("offer-stars").value));
+  formData.append("description", document.getElementById("offer-description").value.trim());
+  formData.append("image_url", document.getElementById("offer-image").value.trim());
+  
+  // Przekazanie tagów jako stringified JSON
+  formData.append("tags", JSON.stringify(tagsArr));
+
+  const fileInput = document.getElementById("offer-image-file");
+  if (fileInput && fileInput.files[0]) {
+    formData.append("image", fileInput.files[0]);
+  }
 
   const submitBtn = e.target.querySelector('[type="submit"]');
   submitBtn.disabled = true;
@@ -221,7 +231,7 @@ document.getElementById("offer-form").addEventListener("submit", async (e) => {
   try {
     const url    = currentEditOfferId ? `${API_BASE}/api/owner/offers/${currentEditOfferId}/` : `${API_BASE}/api/owner/offers/`;
     const method = currentEditOfferId ? "PUT" : "POST";
-    const res    = await fetchWithAuth(url, { method, body: JSON.stringify(payload) });
+    const res    = await fetchWithAuth(url, { method, body: formData });
 
     if (res && res.ok) {
       showToast(currentEditOfferId ? "Oferta zaktualizowana!" : "Oferta dodana pomyślnie!", "success");
