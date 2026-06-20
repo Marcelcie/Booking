@@ -51,7 +51,21 @@ class OfferSerializer(serializers.ModelSerializer):
             check_in__lt=check_out,
             check_out__gt=check_in
         ).exists()
-        return not overlapping
+        if overlapping:
+            return False
+
+        # Sprawdź nakładające się blokady właściciela
+        from datetime import datetime
+        try:
+            ci = datetime.strptime(check_in, '%Y-%m-%d').date()
+            co = datetime.strptime(check_out, '%Y-%m-%d').date()
+            blocked = obj.blocks.filter(
+                start_date__lt=co,
+                end_date__gt=ci
+            ).exists()
+            return not blocked
+        except Exception:
+            return True
 
 class BookingSerializer(serializers.ModelSerializer):
     offer_details = OfferSerializer(source='offer', read_only=True)
@@ -86,6 +100,16 @@ class BookingSerializer(serializers.ModelSerializer):
             if overlapping:
                 raise serializers.ValidationError(
                     "Ten obiekt jest już zarezerwowany w wybranym terminie. Wybierz inne daty."
+                )
+
+            # Sprawdź nakładające się blokady właściciela
+            blocked = offer.blocks.filter(
+                start_date__lt=check_out,
+                end_date__gt=check_in
+            ).exists()
+            if blocked:
+                raise serializers.ValidationError(
+                    "Ten obiekt jest niedostępny w wybranym terminie (blokada właściciela)."
                 )
         
         return attrs

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Sum, Count
-from .models import Offer, Category, Tag, Booking, Favorite, UserProfile, Notification
+from .models import Offer, Category, Tag, Booking, Favorite, UserProfile, Notification, OfferBlock
 from .serializers import (
     OfferSerializer, 
     RegisterSerializer, 
@@ -207,17 +207,34 @@ class OfferAvailabilityView(APIView):
         if not check_in or not check_out:
             bookings = Booking.objects.filter(offer=offer, status='confirmed')
             booked_ranges = [{'from': b.check_in, 'to': b.check_out} for b in bookings]
+            
+            # Dodanie blokad właściciela
+            blocks = offer.blocks.all()
+            for b in blocks:
+                booked_ranges.append({'from': b.start_date.strftime('%Y-%m-%d'), 'to': b.end_date.strftime('%Y-%m-%d')})
+                
             return Response({'available': True, 'booked_dates': booked_ranges})
         
-        overlapping = Booking.objects.filter(
+        overlapping_booking = Booking.objects.filter(
             offer=offer,
             status='confirmed',
             check_in__lt=check_out,
             check_out__gt=check_in
         ).exists()
         
+        from datetime import datetime
+        try:
+            ci = datetime.strptime(check_in, '%Y-%m-%d').date()
+            co = datetime.strptime(check_out, '%Y-%m-%d').date()
+            overlapping_block = offer.blocks.filter(
+                start_date__lt=co,
+                end_date__gt=ci
+            ).exists()
+        except Exception:
+            overlapping_block = False
+            
         return Response({
-            'available': not overlapping,
+            'available': not (overlapping_booking or overlapping_block),
             'offer_id': pk,
             'check_in': check_in,
             'check_out': check_out
@@ -534,4 +551,67 @@ class NotificationMarkReadView(APIView):
             # Wszystkie nieprzeczytane
             Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
             return Response({'message': 'Wszystkie oznaczono jako przeczytane'})
+
+class OwnerOfferToggleActiveView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def post(self, request, pk):
+        try:
+            offer = Offer.objects.get(pk=pk, owner=request.user)
+            offer.is_active = not offer.is_active
+            offer.save()
+            return Response({'is_active': offer.is_active})
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+
+class OwnerOfferBlockListView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def get(self, request, offer_id):
+        try:
+            offer = Offer.objects.get(pk=offer_id, owner=request.user)
+            blocks = offer.blocks.all().order_by('start_date')
+            data = [{'id': b.id, 'start_date': b.start_date.strftime('%Y-%m-%d'), 'end_date': b.end_date.strftime('%Y-%m-%d')} for b in blocks]
+            return Response(data)
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+            
+    def post(self, request, offer_id):
+        try:
+            offer = Offer.objects.get(pk=offer_id, owner=request.user)
+            start_date_str = request.data.get('start_date')
+            end_date_str = request.data.get('end_date')
+            if not start_date_str or not end_date_str:
+                return Response({'error': 'Podaj datę początkową i końcową.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            from datetime import datetime
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            
+            if start_date >= end_date:
+                return Response({'error': 'Data początkowa musi być wcześniejsza niż końcowa.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            block = OfferBlock.objects.create(offer=offer, start_date=start_date, end_date=end_date)
+            return Response({
+                'id': block.id,
+                'start_date': block.start_date.strftime('%Y-%m-%d'),
+                'end_date': block.end_date.strftime('%Y-%m-%d')
+            }, status=status.HTTP_201_CREATED)
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response({'error': 'Nieprawidłowy format daty (użyj RRRR-MM-DD).'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class OwnerBlockDeleteView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def delete(self, request, pk):
+        try:
+            block = OfferBlock.objects.get(pk=pk, offer__owner=request.user)
+            block.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except OfferBlock.DoesNotExist:
+            return Response({'error': 'Blokada nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
 

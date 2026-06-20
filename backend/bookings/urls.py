@@ -21,6 +21,9 @@ from .views import (
     OwnerStatsView,
     NotificationListView,
     NotificationMarkReadView,
+    OwnerOfferToggleActiveView,
+    OwnerOfferBlockListView,
+    OwnerBlockDeleteView,
 )
 
 urlpatterns = [
@@ -42,6 +45,9 @@ urlpatterns = [
     path('owner/offers/<int:pk>/', OwnerOfferDetailView.as_view(), name='owner-offers-detail'),
     path('owner/bookings/', OwnerBookingListView.as_view(), name='owner-bookings-list'),
     path('owner/bookings/<int:pk>/cancel/', OwnerBookingCancelView.as_view(), name='owner-bookings-cancel'),
+    path('owner/offers/<int:pk>/toggle-active/', OwnerOfferToggleActiveView.as_view(), name='owner-offers-toggle-active'),
+    path('owner/offers/<int:offer_id>/blocks/', OwnerOfferBlockListView.as_view(), name='owner-offers-blocks-list'),
+    path('owner/blocks/<int:pk>/', OwnerBlockDeleteView.as_view(), name='owner-blocks-delete'),
     path('owner/stats/', OwnerStatsView.as_view(), name='owner-stats'),
     # Notifications
     path('notifications/', NotificationListView.as_view(), name='notifications-list'),

@@ -59,12 +59,22 @@ function renderOwnerOffers(offers) {
         <h4 style="margin-bottom:5px; color:#1d3557;">${escapeHTML(offer.title)}</h4>
         <p style="margin:2px 0; color:#4b5563; font-size:14px;">📍 ${escapeHTML(offer.location)} | 💰 ${escapeHTML(String(offer.price))} PLN / noc</p>
         <span class="offer-type-badge">${escapeHTML(offer.type)}</span>
-        ${!offer.is_active ? `<span class="offer-type-badge" style="background:#fee2e2;color:#dc2626;font-weight:bold;">Niedostępny</span>` : ''}
+        ${!offer.is_active ? `<span class="offer-type-badge" style="background:#fee2e2;color:#dc2626;font-weight:bold;">Niewidoczny</span>` : ''}
         ${offer.tags_list && offer.tags_list.length ? `<div style="margin-top:5px;">${offer.tags_list.map(t => `<span class="offer-type-badge" style="background:#f0fdf4;color:#16a34a;">${escapeHTML(t)}</span>`).join(' ')}</div>` : ''}
       </div>
-      <div class="owner-offer-actions">
-        <button class="btn-secondary" onclick='editOffer(${JSON.stringify(offer).replace(/'/g, "&#39;")})'>Edytuj</button>
-        <button class="btn-danger" onclick="deleteOffer(${offer.id})">Usuń</button>
+      <div class="owner-offer-actions" style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; gap:6px;">
+          <button class="btn-secondary" onclick='editOffer(${JSON.stringify(offer).replace(/'/g, "&#39;")})'>Edytuj</button>
+          <button class="btn-danger" onclick="deleteOffer(${offer.id})">Usuń</button>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-secondary" style="font-size:12px; padding:6px 10px; background:${offer.is_active ? '#e0f2fe' : '#fef08a'}; color:${offer.is_active ? '#0369a1' : '#854d0e'}; border:none;" onclick="toggleOfferActive(${offer.id})">
+            ${offer.is_active ? '👁️ Ukryj' : '👁️ Pokaż'}
+          </button>
+          <button class="btn-secondary" style="font-size:12px; padding:6px 10px; background:#f3e8ff; color:#6b21a8; border:none;" onclick="openBlockModal(${offer.id}, '${escapeHTML(offer.title)}')">
+            📅 Dostępność
+          </button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -290,3 +300,99 @@ document.getElementById("filter-offer")?.addEventListener("change",  () => loadO
 
 // ===== START =====
 document.addEventListener("DOMContentLoaded", loadOwnerData);
+
+// ===== PRZEŁĄCZANIE AKTYWNOŚCI (WIDOCZNOŚCI) OFERTY =====
+async function toggleOfferActive(offerId) {
+  try {
+    const res = await fetchWithAuth(`${API_BASE}/api/owner/offers/${offerId}/toggle-active/`, {
+      method: "POST"
+    });
+    if (!res || !res.ok) throw new Error("Błąd podczas przełączania aktywności obiektu.");
+    const data = await res.json();
+    
+    ownerOffers = ownerOffers.map(o => o.id === offerId ? { ...o, is_active: data.is_active } : o);
+    renderOwnerOffers(ownerOffers);
+    showToast(data.is_active ? "Obiekt jest teraz widoczny." : "Obiekt został ukryty.", "success");
+  } catch (err) {
+    showToast(err.message || "Błąd sieci.", "error");
+  }
+}
+
+// ===== ZARZĄDZANIE BLOKADAMI DOSTĘPNOŚCI =====
+let currentBlockOfferId = null;
+
+function openBlockModal(offerId, offerTitle) {
+  currentBlockOfferId = offerId;
+  document.getElementById("block-modal-title").textContent = `Zarządzaj dostępnością: ${offerTitle}`;
+  document.getElementById("block-start-date").value = "";
+  document.getElementById("block-end-date").value = "";
+  document.getElementById("block-modal").style.display = "flex";
+  loadOfferBlocks(offerId);
+}
+
+function closeBlockModal() {
+  document.getElementById("block-modal").style.display = "none";
+  currentBlockOfferId = null;
+}
+
+async function loadOfferBlocks(offerId) {
+  const container = document.getElementById("block-list-container");
+  container.innerHTML = `<p style="color:#666;">Ładowanie okresów...</p>`;
+  try {
+    const res = await fetchWithAuth(`${API_BASE}/api/owner/offers/${offerId}/blocks/`);
+    if (!res || !res.ok) throw new Error("Nie udało się załadować blokad.");
+    const blocks = await res.json();
+    if (blocks.length === 0) {
+      container.innerHTML = `<p style="color:#666; font-size:14px; margin:0;">Brak zdefiniowanych blokad w tym obiekcie.</p>`;
+      return;
+    }
+    container.innerHTML = blocks.map(b => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #eef2f6;">
+        <span style="font-size:14px; color:#374151;">📅 <strong>${escapeHTML(b.start_date)}</strong> do <strong>${escapeHTML(b.end_date)}</strong></span>
+        <button class="btn-danger" style="padding:4px 8px; font-size:12px; margin:0;" onclick="deleteOfferBlock(${b.id}, ${offerId})">Usuń</button>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = `<p style="color:red; font-size:14px; margin:0;">Błąd ładowania: ${escapeHTML(err.message)}</p>`;
+  }
+}
+
+async function handleBlockSubmit(e) {
+  e.preventDefault();
+  if (!currentBlockOfferId) return;
+  
+  const start = document.getElementById("block-start-date").value;
+  const end = document.getElementById("block-end-date").value;
+  
+  try {
+    const res = await fetchWithAuth(`${API_BASE}/api/owner/offers/${currentBlockOfferId}/blocks/`, {
+      method: "POST",
+      body: JSON.stringify({ start_date: start, end_date: end })
+    });
+    if (!res || !res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Błąd podczas dodawania blokady.");
+    }
+    
+    document.getElementById("block-start-date").value = "";
+    document.getElementById("block-end-date").value = "";
+    loadOfferBlocks(currentBlockOfferId);
+    showToast("Dodano blokadę terminu.", "success");
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+}
+
+async function deleteOfferBlock(blockId, offerId) {
+  if (!confirm("Czy na pewno chcesz usunąć tę blokadę dostępności?")) return;
+  try {
+    const res = await fetchWithAuth(`${API_BASE}/api/owner/blocks/${blockId}/`, {
+      method: "DELETE"
+    });
+    if (!res || !res.ok) throw new Error("Błąd podczas usuwania blokady.");
+    loadOfferBlocks(offerId);
+    showToast("Usunięto blokadę terminu.", "success");
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+}

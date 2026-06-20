@@ -233,6 +233,42 @@
     </div>
   </div>
 
+  <!-- MODAL BLOKADY TERMINÓW (DOSTĘPNOŚCI) -->
+  <div id="block-modal" class="modal-overlay">
+    <div class="modal-content" style="width: 600px;">
+      <h3 id="block-modal-title">Zarządzaj dostępnością obiektu</h3>
+      
+      <!-- Lista aktualnych blokad -->
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin-bottom: 10px; color: #1d3557; font-size: 16px;">Aktualne okresy niedostępności (blokady):</h4>
+        <div id="block-list-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #e2ecf8; border-radius: 8px; padding: 10px; background: #f8fbff;">
+          <p style="color: #666; font-size: 14px;">Ładowanie okresów...</p>
+        </div>
+      </div>
+
+      <!-- Formularz dodawania nowej blokady -->
+      <form id="block-form" onsubmit="handleBlockSubmit(event)">
+        <h4 style="margin-bottom: 10px; color: #1d3557; font-size: 16px;">Dodaj nowy okres niedostępności:</h4>
+        <div style="display: flex; gap: 12px; margin-bottom: 14px;">
+          <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="block-start-date">Od *</label>
+            <input type="date" id="block-start-date" required />
+          </div>
+          <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="block-end-date">Do *</label>
+            <input type="date" id="block-end-date" required />
+          </div>
+        </div>
+        <p class="form-hint" style="margin-bottom: 18px;">W wybranym terminie klienci nie będą mogli zarezerwować tego obiektu (będzie wyświetlał się jako zajęty/zarezerwowany).</p>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeBlockModal()">Zamknij</button>
+          <button type="submit" class="btn-primary" style="background: #7c3aed;">Dodaj blokadę</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/moj-hotel.js"></script>

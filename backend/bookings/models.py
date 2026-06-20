@@ -151,3 +151,16 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Powiadomienie dla {self.user.username}: {self.message[:50]}"
+
+class OfferBlock(models.Model):
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='blocks')
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        verbose_name = "Blokada terminu"
+        verbose_name_plural = "Blokady terminów"
+        ordering = ['start_date']
+
+    def __str__(self):
+        return f"Blokada {self.offer.title}: {self.start_date} do {self.end_date}"
