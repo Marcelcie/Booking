@@ -170,6 +170,7 @@ class Room(models.Model):
     name = models.CharField(max_length=100, default="Pokój")
     capacity = models.PositiveIntegerField(verbose_name="Ilość osób")
     quantity = models.PositiveIntegerField(verbose_name="Ilość takich pokoi", default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Cena za noc")
 
     class Meta:
         verbose_name = "Pokój"

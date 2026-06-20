@@ -155,7 +155,7 @@ function renderOfferDetails(offer, bookedDates = []) {
               <div class="room-item" style="background:#f8fafc; border:1px solid #e2e8f0; padding:15px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
                   <strong style="color: #1d3557; font-size: 16px;">${escapeHtml(room.name)}</strong>
-                  <span style="display:block; font-size:13px; color:#64748b; margin-top:4px;">Wielkość: ${room.capacity} os. | Ilość pokoi: ${room.quantity}</span>
+                  <span style="display:block; font-size:13px; color:#64748b; margin-top:4px;">Wielkość: ${room.capacity} os. | Ilość pokoi: ${room.quantity} | Cena: ${room.price} zł / noc</span>
                 </div>
                 <div style="font-size:24px; color:#3b82f6;">🛏️</div>
               </div>

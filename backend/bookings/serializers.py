@@ -17,7 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = ['id', 'name', 'capacity', 'quantity']
+        fields = ['id', 'name', 'capacity', 'quantity', 'price']
 
 class FAQSerializer(serializers.ModelSerializer):
     class Meta:

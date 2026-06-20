@@ -633,8 +633,9 @@ class OwnerRoomListView(APIView):
             name = request.data.get('name', 'Pokój')
             capacity = int(request.data.get('capacity', 2))
             quantity = int(request.data.get('quantity', 1))
-            room = Room.objects.create(offer=offer, name=name, capacity=capacity, quantity=quantity)
-            return Response({'id': room.id, 'name': room.name, 'capacity': room.capacity, 'quantity': room.quantity}, status=status.HTTP_201_CREATED)
+            price = float(request.data.get('price', 0.00))
+            room = Room.objects.create(offer=offer, name=name, capacity=capacity, quantity=quantity, price=price)
+            return Response({'id': room.id, 'name': room.name, 'capacity': room.capacity, 'quantity': room.quantity, 'price': room.price}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -100,7 +100,7 @@ function renderRooms() {
     <div class="room-card">
       <div>
         <strong>${escapeHTML(r.name)}</strong><br>
-        <span style="font-size:13px; color:#64748b;">Pojemność: ${r.capacity} os. | Ilość pokoi: ${r.quantity}</span>
+        <span style="font-size:13px; color:#64748b;">Pojemność: ${r.capacity} os. | Ilość pokoi: ${r.quantity} | Cena: ${r.price} zł/noc</span>
       </div>
       <button class="btn-danger" style="padding:6px 10px; font-size:12px;" onclick="deleteRoom(${r.id})">Usuń</button>
     </div>
@@ -112,11 +112,12 @@ document.getElementById("add-room-form").addEventListener("submit", async (e) =>
   const name = document.getElementById("new-room-name").value;
   const cap = document.getElementById("new-room-capacity").value;
   const qty = document.getElementById("new-room-quantity").value;
+  const price = document.getElementById("new-room-price").value;
 
   try {
     const res = await fetchWithAuth(`${API_BASE}/api/owner/offers/${currentOfferId}/rooms/`, {
       method: "POST",
-      body: JSON.stringify({ name: name, capacity: cap, quantity: qty })
+      body: JSON.stringify({ name: name, capacity: cap, quantity: qty, price: price })
     });
     if (!res.ok) throw new Error("Błąd dodawania pokoju.");
     document.getElementById("add-room-form").reset();
