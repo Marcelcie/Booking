@@ -401,6 +401,16 @@ class OwnerOfferDetailView(APIView):
     """Aktualizacja lub usuwanie oferty właściciela (wspiera częściową aktualizację jak PATCH)"""
     permission_classes = [IsAuthenticated, IsOwner]
     
+    def get(self, request, pk):
+        try:
+            offer = Offer.objects.get(pk=pk, owner=request.user)
+            return Response(OfferSerializer(offer, context={'request': request}).data)
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+            
+    def patch(self, request, pk):
+        return self.put(request, pk)
+
     def put(self, request, pk):
         try:
             offer = Offer.objects.get(pk=pk, owner=request.user)

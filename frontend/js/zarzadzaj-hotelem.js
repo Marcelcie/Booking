@@ -93,16 +93,20 @@ async function saveInlineEdit(key) {
 function renderRooms() {
   const container = document.getElementById("rooms-list");
   if (!offerData.rooms || offerData.rooms.length === 0) {
-    container.innerHTML = `<p style="color:#666;">Brak zdefiniowanych pokoi.</p>`;
+    container.innerHTML = `<p style="color:#64748b;grid-column: 1 / -1;text-align:center;padding:20px;">Brak zdefiniowanych pokoi.</p>`;
     return;
   }
   container.innerHTML = offerData.rooms.map(r => `
     <div class="room-card">
-      <div>
-        <strong>${escapeHTML(r.name)}</strong><br>
-        <span style="font-size:13px; color:#64748b;">Pojemność: ${r.capacity} os. | Ilość pokoi: ${r.quantity} | Cena: ${r.price} zł/noc</span>
+      <div class="room-card-info">
+        <h4>${escapeHTML(r.name)}</h4>
+        <div class="room-card-meta">
+          <span>👥 ${r.capacity} os.</span>
+          <span>🔑 ${r.quantity} pok.</span>
+          <span style="font-weight: 600; color: #1e3a8a;">💰 ${r.price} zł/noc</span>
+        </div>
       </div>
-      <button class="btn-danger" style="padding:6px 10px; font-size:12px;" onclick="deleteRoom(${r.id})">Usuń</button>
+      <button class="btn-danger" style="padding:8px 12px; font-size:12px;" onclick="deleteRoom(${r.id})">Usuń</button>
     </div>
   `).join('');
 }
@@ -144,16 +148,16 @@ async function deleteRoom(id) {
 function renderFAQs() {
   const container = document.getElementById("faqs-list");
   if (!offerData.faqs || offerData.faqs.length === 0) {
-    container.innerHTML = `<p style="color:#666;">Brak FAQ.</p>`;
+    container.innerHTML = `<p style="color:#64748b;grid-column: 1 / -1;text-align:center;padding:20px;">Brak zdefiniowanych pytań FAQ.</p>`;
     return;
   }
   container.innerHTML = offerData.faqs.map(f => `
     <div class="faq-card" style="align-items:flex-start;">
       <div style="flex:1;">
-        <strong style="color:#1e293b;">Q: ${escapeHTML(f.question)}</strong><br>
-        <span style="font-size:13px; color:#475569; display:block; margin-top:4px;">A: ${escapeHTML(f.answer)}</span>
+        <strong style="color:#1e293b; font-size:15px; display:block; margin-bottom:5px;">Q: ${escapeHTML(f.question)}</strong>
+        <span style="font-size:13px; color:#475569; display:block; line-height:1.5;">A: ${escapeHTML(f.answer)}</span>
       </div>
-      <button class="btn-danger" style="padding:6px 10px; font-size:12px; margin-left:15px;" onclick="deleteFAQ(${f.id})">Usuń</button>
+      <button class="btn-danger" style="padding:8px 12px; font-size:12px; margin-left:15px;" onclick="deleteFAQ(${f.id})">Usuń</button>
     </div>
   `).join('');
 }
