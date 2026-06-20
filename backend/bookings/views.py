@@ -120,7 +120,7 @@ class FavoriteListView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        favorites = Favorite.objects.filter(user=request.user)
+        favorites = Favorite.objects.filter(user=request.user).select_related('offer', 'offer__category').prefetch_related('offer__tags', 'offer__reviews')
         offers = [fav.offer for fav in favorites]
         serializer = OfferSerializer(offers, many=True)
         return Response(serializer.data)
