@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import Offer, Category, Tag, ContactMessage, Booking, Review
+from .models import Offer, Category, Tag, ContactMessage, Booking, Review, Notification
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     topic = serializers.CharField(source='subject', required=True)
@@ -56,6 +56,11 @@ class BookingSerializer(serializers.ModelSerializer):
         check_in = attrs.get('check_in')
         check_out = attrs.get('check_out')
         offer = attrs.get('offer')
+
+        # Blokada rezerwacji własnego obiektu przez właściciela
+        request = self.context.get('request')
+        if request and offer and offer.owner_id and offer.owner_id == request.user.id:
+            raise serializers.ValidationError("Nie możesz zarezerwować własnego obiektu.")
         
         if check_in and check_out:
             if check_in >= check_out:
@@ -141,7 +146,7 @@ class OwnerBookingSerializer(serializers.ModelSerializer):
     offer_details = OfferSerializer(source='offer', read_only=True)
     guest_name = serializers.CharField(source='user.first_name', read_only=True)
     guest_email = serializers.CharField(source='user.email', read_only=True)
-    guest_phone = serializers.CharField(source='user.profile.phone', read_only=True)
+    guest_phone = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking
@@ -149,3 +154,15 @@ class OwnerBookingSerializer(serializers.ModelSerializer):
                   'guests', 'rooms', 'room_type', 'total_price', 'status', 'created_at',
                   'guest_name', 'guest_email', 'guest_phone']
         read_only_fields = ['status', 'created_at']
+
+    def get_guest_phone(self, obj):
+        try:
+            return obj.user.profile.phone
+        except Exception:
+            return ''
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'message', 'notification_type', 'is_read', 'created_at', 'related_booking']
+        read_only_fields = ['id', 'message', 'notification_type', 'created_at', 'related_booking']

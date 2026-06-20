@@ -17,7 +17,10 @@ from .views import (
     OwnerOfferListView,
     OwnerOfferDetailView,
     OwnerBookingListView,
-    OwnerBookingCancelView
+    OwnerBookingCancelView,
+    OwnerStatsView,
+    NotificationListView,
+    NotificationMarkReadView,
 )
 
 urlpatterns = [
@@ -34,8 +37,14 @@ urlpatterns = [
     path('contact/',ContactMessageView.as_view(),name='contact'),
     path('bookings/', BookingListCreateView.as_view(), name='booking-list-create'),
     path('bookings/<int:pk>/cancel/', BookingCancelView.as_view(), name='booking-cancel'),
+    # Owner endpoints
     path('owner/offers/', OwnerOfferListView.as_view(), name='owner-offers-list'),
     path('owner/offers/<int:pk>/', OwnerOfferDetailView.as_view(), name='owner-offers-detail'),
     path('owner/bookings/', OwnerBookingListView.as_view(), name='owner-bookings-list'),
     path('owner/bookings/<int:pk>/cancel/', OwnerBookingCancelView.as_view(), name='owner-bookings-cancel'),
-]
+    path('owner/stats/', OwnerStatsView.as_view(), name='owner-stats'),
+    # Notifications
+    path('notifications/', NotificationListView.as_view(), name='notifications-list'),
+    path('notifications/mark-read/', NotificationMarkReadView.as_view(), name='notifications-mark-all-read'),
+    path('notifications/<int:pk>/read/', NotificationMarkReadView.as_view(), name='notifications-mark-read'),
+]

@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.contrib.auth.models import User
-from django.db.models import Prefetch
-from rest_framework.permissions import IsAuthenticated
-from .models import Offer, Category, Booking, Favorite, UserProfile
+from django.db.models import Prefetch, Sum, Count
+from .models import Offer, Category, Booking, Favorite, UserProfile, Notification
 from .serializers import (
     OfferSerializer, 
     RegisterSerializer, 
@@ -13,8 +13,27 @@ from .serializers import (
     BookingSerializer,
     UserProfileUpdateSerializer,
     ChangePasswordSerializer,
-    OwnerBookingSerializer
+    OwnerBookingSerializer,
+    NotificationSerializer
 )
+
+# --- CUSTOM PERMISSIONS ---
+class IsOwner(BasePermission):
+    """Zezwala tylko właścicielom obiektów hotelowych."""
+    def has_permission(self, request, view):
+        if not (request.user and request.user.is_authenticated):
+            return False
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        return profile.is_owner
+
+# --- HELPER: tworzenie powiadomień ---
+def create_notification(user, message, notification_type, booking=None):
+    Notification.objects.create(
+        user=user,
+        message=message,
+        notification_type=notification_type,
+        related_booking=booking
+    )
 
 # --- REJESTRACJA ---
 class RegisterView(APIView):
@@ -245,9 +264,24 @@ class BookingListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = BookingSerializer(data=request.data)
+        serializer = BookingSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            booking = serializer.save(user=request.user)
+            # --- Powiadomienie dla właściciela obiektu ---
+            if booking.offer.owner:
+                create_notification(
+                    user=booking.offer.owner,
+                    message=f"Nowa rezerwacja od {request.user.first_name or request.user.email} w '{booking.offer.title}' ({booking.check_in} – {booking.check_out}).",
+                    notification_type='booking_created',
+                    booking=booking
+                )
+            # --- Potwierdzenie dla gościa ---
+            create_notification(
+                user=request.user,
+                message=f"Twoja rezerwacja w '{booking.offer.title}' ({booking.check_in} – {booking.check_out}) została potwierdzona!",
+                notification_type='booking_confirmed',
+                booking=booking
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -268,25 +302,28 @@ class BookingCancelView(APIView):
         
         booking.status = 'cancelled'
         booking.save()
+        # --- Powiadomienie dla właściciela ---
+        if booking.offer.owner:
+            create_notification(
+                user=booking.offer.owner,
+                message=f"Gość {request.user.first_name or request.user.email} anulował rezerwację w '{booking.offer.title}' ({booking.check_in} – {booking.check_out}).",
+                notification_type='booking_cancelled_guest',
+                booking=booking
+            )
         return Response({'message': 'Rezerwacja została anulowana.', 'status': 'cancelled'})
 
 # --- WŁAŚCICIEL (OWNER) ---
 
 class OwnerOfferListView(APIView):
     """Widok ofert stworzonych przez właściciela"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
     
     def get(self, request):
-        if not getattr(request.user.profile, 'is_owner', False):
-            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
         offers = Offer.objects.filter(owner=request.user).select_related('category').prefetch_related('tags', 'reviews')
         serializer = OfferSerializer(offers, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        if not getattr(request.user.profile, 'is_owner', False):
-            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
-        
         data = request.data
         try:
             category_name = data.get('category', 'Inne')
@@ -309,12 +346,10 @@ class OwnerOfferListView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class OwnerOfferDetailView(APIView):
-    """Aktualizacja lub usuwanie oferty właściciela"""
-    permission_classes = [IsAuthenticated]
+    """Aktualizacja lub usuwanie oferty właściciela (wspiera częściową aktualizację jak PATCH)"""
+    permission_classes = [IsAuthenticated, IsOwner]
     
     def put(self, request, pk):
-        if not getattr(request.user.profile, 'is_owner', False):
-            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
         try:
             offer = Offer.objects.get(pk=pk, owner=request.user)
             data = request.data
@@ -338,8 +373,6 @@ class OwnerOfferDetailView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        if not getattr(request.user.profile, 'is_owner', False):
-            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
         try:
             offer = Offer.objects.get(pk=pk, owner=request.user)
             offer.delete()
@@ -348,30 +381,102 @@ class OwnerOfferDetailView(APIView):
             return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
 
 class OwnerBookingListView(APIView):
-    """Widok rezerwacji w obiektach właściciela"""
-    permission_classes = [IsAuthenticated]
+    """Widok rezerwacji w obiektach właściciela – z paginacją i filtrowaniem"""
+    permission_classes = [IsAuthenticated, IsOwner]
     
     def get(self, request):
-        if not getattr(request.user.profile, 'is_owner', False):
-            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
-        bookings = Booking.objects.filter(offer__owner=request.user).select_related('offer', 'user', 'user__profile')
-        serializer = OwnerBookingSerializer(bookings, many=True)
-        return Response(serializer.data)
+        status_filter = request.query_params.get('status', None)
+        offer_id_filter = request.query_params.get('offer_id', None)
+        page = max(int(request.query_params.get('page', 1)), 1)
+        per_page = min(int(request.query_params.get('per_page', 20)), 100)
+
+        bookings = Booking.objects.filter(offer__owner=request.user).select_related('offer', 'user', 'user__profile').order_by('-created_at')
+        if status_filter:
+            bookings = bookings.filter(status=status_filter)
+        if offer_id_filter:
+            bookings = bookings.filter(offer_id=offer_id_filter)
+
+        total = bookings.count()
+        confirmed_count = Booking.objects.filter(offer__owner=request.user, status='confirmed').count()
+        offset = (page - 1) * per_page
+        serializer = OwnerBookingSerializer(bookings[offset:offset + per_page], many=True)
+        return Response({
+            'results': serializer.data,
+            'total': total,
+            'confirmed_count': confirmed_count,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': (total + per_page - 1) // per_page if total else 1,
+        })
 
 class OwnerBookingCancelView(APIView):
     """Anulowanie rezerwacji klienta przez właściciela"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
     
     def post(self, request, pk):
-        if not getattr(request.user.profile, 'is_owner', False):
-            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
         try:
-            booking = Booking.objects.get(pk=pk, offer__owner=request.user)
+            booking = Booking.objects.select_related('user', 'offer').get(pk=pk, offer__owner=request.user)
             if booking.status == 'cancelled':
                 return Response({'error': 'Rezerwacja już jest anulowana'}, status=status.HTTP_400_BAD_REQUEST)
             booking.status = 'cancelled'
             booking.save()
+            # Powiadomienie dla gościa
+            create_notification(
+                user=booking.user,
+                message=f"Właściciel anulował Twoją rezerwację w '{booking.offer.title}' ({booking.check_in} – {booking.check_out}).",
+                notification_type='booking_cancelled_owner',
+                booking=booking
+            )
             return Response({'message': 'Rezerwacja anulowana', 'status': 'cancelled'})
         except Booking.DoesNotExist:
             return Response({'error': 'Rezerwacja nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+
+class OwnerStatsView(APIView):
+    """Statystyki i przychody właściciela"""
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    def get(self, request):
+        offers_count = Offer.objects.filter(owner=request.user).count()
+        all_bookings = Booking.objects.filter(offer__owner=request.user)
+        confirmed = all_bookings.filter(status='confirmed')
+        total_revenue = confirmed.aggregate(total=Sum('total_price'))['total'] or 0
+        return Response({
+            'offers_count': offers_count,
+            'total_bookings': all_bookings.count(),
+            'confirmed_bookings': confirmed.count(),
+            'total_revenue': float(total_revenue),
+        })
+
+# --- POWIADOMIENIA ---
+class NotificationListView(APIView):
+    """Lista powiadomień zalogowanego użytkownika"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user)[:50]
+        serializer = NotificationSerializer(notifications, many=True)
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({
+            'notifications': serializer.data,
+            'unread_count': unread_count,
+        })
+
+class NotificationMarkReadView(APIView):
+    """Oznaczanie powiadomienia jako przeczytane"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk=None):
+        if pk:
+            # Jedno konkretne powiadomienie
+            try:
+                n = Notification.objects.get(pk=pk, user=request.user)
+                n.is_read = True
+                n.save()
+                return Response({'message': 'Oznaczono jako przeczytane'})
+            except Notification.DoesNotExist:
+                return Response({'error': 'Nie znaleziono'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Wszystkie nieprzeczytane
+            Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+            return Response({'message': 'Wszystkie oznaczono jako przeczytane'})
 

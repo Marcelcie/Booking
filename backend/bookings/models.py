@@ -126,3 +126,26 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Opinia {self.author_name} - {self.offer.title} ({self.rating}/10)"
+
+# --- POWIADOMIENIA ---
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ('booking_created', 'Nowa rezerwacja'),
+        ('booking_cancelled_guest', 'Anulowanie przez gościa'),
+        ('booking_cancelled_owner', 'Anulowanie przez właściciela'),
+        ('booking_confirmed', 'Potwierdzenie rezerwacji'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    notification_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    related_booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Powiadomienie"
+        verbose_name_plural = "Powiadomienia"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Powiadomienie dla {self.user.username}: {self.message[:50]}"
