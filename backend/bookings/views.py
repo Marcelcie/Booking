@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 from rest_framework.permissions import IsAuthenticated
 from .models import Offer, Category, Booking, Favorite, UserProfile
 from .serializers import (
@@ -132,7 +133,7 @@ class OfferListView(APIView):
     Opcjonalne query params: check_in, check_out (format YYYY-MM-DD)
     """
     def get(self, request):
-        offers = Offer.objects.all()
+        offers = Offer.objects.select_related('category').prefetch_related('tags', 'reviews').all()
         
         # Filtrowanie dostępności po datach
         check_in = request.query_params.get('check_in')
@@ -148,7 +149,7 @@ class OfferDetailView(APIView):
     """
     def get(self, request, pk):
         try:
-            offer = Offer.objects.get(pk=pk)
+            offer = Offer.objects.select_related('category').prefetch_related('tags', 'reviews').get(pk=pk)
             serializer = OfferSerializer(offer)
             return Response(serializer.data)
         except Offer.DoesNotExist:
@@ -159,11 +160,15 @@ class OfferGroupedView(APIView):
     Zwraca oferty pogrupowane według kategorii.
     """
     def get(self, request):
-        categories = Category.objects.all()
+        categories = Category.objects.prefetch_related(
+            Prefetch(
+                'offers',
+                queryset=Offer.objects.select_related('category').prefetch_related('tags', 'reviews')
+            )
+        ).all()
         data = {}
         for cat in categories:
-            offers = Offer.objects.filter(category=cat)
-            data[cat.name] = OfferSerializer(offers, many=True).data
+            data[cat.name] = OfferSerializer(cat.offers.all(), many=True).data
         return Response(data)
 
 class OfferAvailabilityView(APIView):
@@ -203,11 +208,12 @@ class RankingGroupedView(APIView):
     Zwraca dynamiczne rankingi (top oceniane, najtańsze itp.).
     """
     def get(self, request):
+        base_qs = Offer.objects.select_related('category').prefetch_related('tags', 'reviews')
         data = {
-            'topRated': OfferSerializer(Offer.objects.order_by('-rating')[:5], many=True).data,
-            'popular': OfferSerializer(Offer.objects.order_by('-reviews_count')[:5], many=True).data,
-            'cheapest': OfferSerializer(Offer.objects.order_by('price')[:5], many=True).data,
-            'premium': OfferSerializer(Offer.objects.filter(stars=5).order_by('-rating')[:5], many=True).data
+            'topRated': OfferSerializer(base_qs.order_by('-rating')[:5], many=True).data,
+            'popular': OfferSerializer(base_qs.order_by('-reviews_count')[:5], many=True).data,
+            'cheapest': OfferSerializer(base_qs.order_by('price')[:5], many=True).data,
+            'premium': OfferSerializer(base_qs.filter(stars=5).order_by('-rating')[:5], many=True).data
         }
         return Response(data)
 
