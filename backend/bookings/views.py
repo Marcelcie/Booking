@@ -12,7 +12,8 @@ from .serializers import (
     ContactMessageSerializer,
     BookingSerializer,
     UserProfileUpdateSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    OwnerBookingSerializer
 )
 
 # --- REJESTRACJA ---
@@ -47,7 +48,7 @@ class UserProfileView(APIView):
             'last_name': user.last_name,
             'email': user.email,
             'phone': profile.phone,
-            'role': 'user'
+            'role': 'owner' if getattr(profile, 'is_owner', False) else 'user'
         })
     
     def put(self, request):
@@ -268,3 +269,109 @@ class BookingCancelView(APIView):
         booking.status = 'cancelled'
         booking.save()
         return Response({'message': 'Rezerwacja została anulowana.', 'status': 'cancelled'})
+
+# --- WŁAŚCICIEL (OWNER) ---
+
+class OwnerOfferListView(APIView):
+    """Widok ofert stworzonych przez właściciela"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        if not getattr(request.user.profile, 'is_owner', False):
+            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
+        offers = Offer.objects.filter(owner=request.user).select_related('category').prefetch_related('tags', 'reviews')
+        serializer = OfferSerializer(offers, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        if not getattr(request.user.profile, 'is_owner', False):
+            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
+        
+        data = request.data
+        try:
+            category_name = data.get('category', 'Inne')
+            category, _ = Category.objects.get_or_create(display_name=category_name, defaults={'name': category_name.lower()})
+            
+            offer = Offer.objects.create(
+                owner=request.user,
+                category=category,
+                title=data.get('title', 'Nowa oferta'),
+                type=data.get('type', 'hotel'),
+                location=data.get('location', 'Polska'),
+                description=data.get('description', ''),
+                price=data.get('price', 100),
+                rating=0.0,
+                stars=data.get('stars', 3),
+                image_url=data.get('image_url', 'https://images.unsplash.com/photo-1566073771259-6a8506099945')
+            )
+            return Response(OfferSerializer(offer).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class OwnerOfferDetailView(APIView):
+    """Aktualizacja lub usuwanie oferty właściciela"""
+    permission_classes = [IsAuthenticated]
+    
+    def put(self, request, pk):
+        if not getattr(request.user.profile, 'is_owner', False):
+            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            offer = Offer.objects.get(pk=pk, owner=request.user)
+            data = request.data
+            
+            if 'title' in data: offer.title = data['title']
+            if 'type' in data: offer.type = data['type']
+            if 'location' in data: offer.location = data['location']
+            if 'price' in data: offer.price = int(data['price'])
+            if 'description' in data: offer.description = data['description']
+            if 'stars' in data: offer.stars = int(data['stars'])
+            if 'image_url' in data: offer.image_url = data['image_url']
+            if 'category' in data:
+                cat, _ = Category.objects.get_or_create(display_name=data['category'], defaults={'name': data['category'].lower()})
+                offer.category = cat
+                
+            offer.save()
+            return Response(OfferSerializer(offer).data)
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        if not getattr(request.user.profile, 'is_owner', False):
+            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            offer = Offer.objects.get(pk=pk, owner=request.user)
+            offer.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+
+class OwnerBookingListView(APIView):
+    """Widok rezerwacji w obiektach właściciela"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        if not getattr(request.user.profile, 'is_owner', False):
+            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
+        bookings = Booking.objects.filter(offer__owner=request.user).select_related('offer', 'user', 'user__profile')
+        serializer = OwnerBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+class OwnerBookingCancelView(APIView):
+    """Anulowanie rezerwacji klienta przez właściciela"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, pk):
+        if not getattr(request.user.profile, 'is_owner', False):
+            return Response({'error': 'Brak uprawnień'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            booking = Booking.objects.get(pk=pk, offer__owner=request.user)
+            if booking.status == 'cancelled':
+                return Response({'error': 'Rezerwacja już jest anulowana'}, status=status.HTTP_400_BAD_REQUEST)
+            booking.status = 'cancelled'
+            booking.save()
+            return Response({'message': 'Rezerwacja anulowana', 'status': 'cancelled'})
+        except Booking.DoesNotExist:
+            return Response({'error': 'Rezerwacja nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+

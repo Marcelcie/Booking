@@ -13,7 +13,11 @@ from .views import (
     ContactMessageView,
     BookingListCreateView,
     BookingCancelView,
-    ChangePasswordView
+    ChangePasswordView,
+    OwnerOfferListView,
+    OwnerOfferDetailView,
+    OwnerBookingListView,
+    OwnerBookingCancelView
 )
 
 urlpatterns = [
@@ -30,4 +34,8 @@ urlpatterns = [
     path('contact/',ContactMessageView.as_view(),name='contact'),
     path('bookings/', BookingListCreateView.as_view(), name='booking-list-create'),
     path('bookings/<int:pk>/cancel/', BookingCancelView.as_view(), name='booking-cancel'),
+    path('owner/offers/', OwnerOfferListView.as_view(), name='owner-offers-list'),
+    path('owner/offers/<int:pk>/', OwnerOfferDetailView.as_view(), name='owner-offers-detail'),
+    path('owner/bookings/', OwnerBookingListView.as_view(), name='owner-bookings-list'),
+    path('owner/bookings/<int:pk>/cancel/', OwnerBookingCancelView.as_view(), name='owner-bookings-cancel'),
 ]

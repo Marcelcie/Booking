@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mój hotel - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/konto.css" />
+  <link rel="icon" type="image/png" href="../images/favicon.png" />
+  <style>
+    .owner-actions { margin-bottom: 20px; display: flex; gap: 10px; }
+    .btn-primary { background: #1e88e5; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer; font-weight: bold; }
+    .btn-danger { background: #e53935; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; }
+    .btn-secondary { background: #f1f5f9; color: #1d3557; padding: 8px 12px; border-radius: 6px; text-decoration: none; border: 1px solid #cbd5e1; cursor: pointer; }
+    .offer-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
+    .offer-card img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; }
+    .offer-details { flex: 1; }
+    .offer-actions { display: flex; gap: 10px; }
+    .booking-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
+    .booking-info h4 { margin-bottom: 5px; color: #1d3557; }
+    .booking-info p { margin: 2px 0; color: #4b5563; font-size: 14px; }
+    
+    /* MODAL */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: white; padding: 30px; border-radius: 16px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-content h3 { margin-bottom: 20px; color: #1d3557; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #1d3557; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="global-preloader">
+    <div class="spinner"></div>
+  </div>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo"><a href="../index.html">BookSpace</a></h1>
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="account-hero">
+      <div class="container">
+        <div class="account-hero-box">
+          <div class="account-avatar">🏢</div>
+          <div class="account-hero-text">
+            <p class="account-hero-subtitle">Panel właściciela</p>
+            <h2>Witaj, <span id="owner-name">---</span></h2>
+            <p class="account-hero-desc">Zarządzaj swoimi obiektami noclegowymi i rezerwacjami klientów.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="account-page section">
+      <div class="container account-layout">
+        
+        <div class="account-stats">
+          <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div>
+              <h3 id="stats-offers">0</h3>
+              <p>Twoje obiekty</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div>
+              <h3 id="stats-bookings">0</h3>
+              <p>Rezerwacje gości</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="account-main-grid">
+          
+          <div class="account-section-card full-width">
+            <div class="section-header">
+              <div class="section-icon">🏨</div>
+              <div>
+                <h3>Moje obiekty</h3>
+                <p>Lista dodanych ofert noclegowych.</p>
+              </div>
+            </div>
+            
+            <div class="owner-actions">
+              <button class="btn-primary" onclick="openOfferModal()">+ Dodaj nowy obiekt</button>
+            </div>
+            
+            <div id="owner-offers-list">
+              <p>Ładowanie obiektów...</p>
+            </div>
+          </div>
+
+          <div class="account-section-card full-width">
+            <div class="section-header">
+              <div class="section-icon">🛎️</div>
+              <div>
+                <h3>Rezerwacje gości</h3>
+                <p>Zarządzaj rezerwacjami swoich klientów.</p>
+              </div>
+            </div>
+            
+            <div id="owner-bookings-list">
+              <p>Ładowanie rezerwacji...</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="container">
+      <div class="simple-footer-bottom">
+        <p>&copy; 2026 BookSpace. Projekt studencki.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal Dodawania/Edycji Oferty -->
+  <div id="offer-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 id="modal-title">Dodaj nowy obiekt</h3>
+      <form id="offer-form">
+        <input type="hidden" id="offer-id" />
+        <div class="form-group">
+          <label>Nazwa obiektu</label>
+          <input type="text" id="offer-title" required />
+        </div>
+        <div class="form-group">
+          <label>Lokalizacja (np. Warszawa)</label>
+          <input type="text" id="offer-location" required />
+        </div>
+        <div class="form-group">
+          <label>Typ (hotel, apartament, domek)</label>
+          <select id="offer-type">
+            <option value="hotel">Hotel</option>
+            <option value="apartament">Apartament</option>
+            <option value="domek">Domek</option>
+            <option value="pensjonat">Pensjonat</option>
+            <option value="resort">Resort</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Kategoria</label>
+          <input type="text" id="offer-category" placeholder="np. Luksusowy hotel" required />
+        </div>
+        <div class="form-group">
+          <label>Cena za noc (PLN)</label>
+          <input type="number" id="offer-price" required />
+        </div>
+        <div class="form-group">
+          <label>Gwiazdki (1-5)</label>
+          <input type="number" id="offer-stars" min="1" max="5" value="3" required />
+        </div>
+        <div class="form-group">
+          <label>Link do zdjęcia (URL)</label>
+          <input type="url" id="offer-image" placeholder="https://..." required />
+        </div>
+        <div class="form-group">
+          <label>Opis obiektu</label>
+          <textarea id="offer-description" rows="4"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeOfferModal()">Anuluj</button>
+          <button type="submit" class="btn-primary">Zapisz</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/moj-hotel.js"></script>
+</body>
+</html>
