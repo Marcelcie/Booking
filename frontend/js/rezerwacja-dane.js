@@ -27,14 +27,16 @@ function formatGuests(value) {
   const number = Number(value);
 
   if (number === 1) return "1 osoba";
-  return `${number} osoby`;
+  if (number >= 2 && number <= 4) return `${number} osoby`;
+  return `${number} osób`;
 }
 
 function formatRooms(value) {
   const number = Number(value);
 
   if (number === 1) return "1 pokój";
-  return `${number} pokoje`;
+  if (number >= 2 && number <= 4) return `${number} pokoje`;
+  return `${number} pokoi`;
 }
 
 function renderSummary() {

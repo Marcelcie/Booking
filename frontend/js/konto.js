@@ -20,9 +20,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       year: "numeric"
     });
   }
+  
+  function getStatusBadge(status) {
+    if (status === 'cancelled') {
+      return '<span class="booking-status cancelled" style="background: #fef2f2; color: #dc2626; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Anulowana</span>';
+    }
+    return '<span class="booking-status active" style="background: #f0fdf4; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Aktywna</span>';
+  }
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/bookings/", {
+    const response = await fetch(`${API_BASE}/api/bookings/`, {
       headers: {
         "Authorization": `Bearer ${token}`
       }
@@ -42,9 +49,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const bookings = await response.json();
     console.log("Pobrane rezerwacje użytkownika:", bookings);
 
-    // Update the counter
+    // Update the counter (only count confirmed)
+    const activeCount = bookings.filter(b => b.status !== 'cancelled').length;
     if (reservationsCount) {
-      reservationsCount.textContent = bookings.length;
+      reservationsCount.textContent = activeCount;
     }
 
     if (bookings.length === 0) {
@@ -66,22 +74,55 @@ document.addEventListener("DOMContentLoaded", async () => {
       const checkInFormatted = formatDate(booking.check_in);
       const checkOutFormatted = formatDate(booking.check_out);
       const offerId = offer.id || booking.offer;
+      const bookingStatus = booking.status || 'confirmed';
+      const isCancelled = bookingStatus === 'cancelled';
 
       return `
-        <div class="booking-card">
-          <div class="booking-top">
+        <div class="booking-card" style="${isCancelled ? 'opacity: 0.6;' : ''}">
+          <div class="booking-top" style="display: flex; justify-content: space-between; align-items: center;">
             <h4 style="font-size: 20px; font-weight: 700; color: #1d3557;">${title}</h4>
-            <span class="booking-status active">Aktywna</span>
+            ${getStatusBadge(bookingStatus)}
           </div>
           <p style="margin: 6px 0; color: #4b5563;"><strong>Termin:</strong> ${checkInFormatted} – ${checkOutFormatted}</p>
           <p style="margin: 6px 0; color: #4b5563;"><strong>Lokalizacja:</strong> 📍 ${location}</p>
+          <p style="margin: 6px 0; color: #4b5563;"><strong>Pokój:</strong> ${booking.room_type || 'standard'}</p>
           <p style="margin: 6px 0; color: #4b5563;"><strong>Koszt całkowity:</strong> <span style="color: #1e88e5; font-weight: bold;">${price} zł</span></p>
           <div style="margin-top: 14px; display: flex; gap: 10px;">
             <a href="oferta-szczegoly.html?id=${offerId}" class="offer-btn" style="display: inline-block; font-size: 13px; text-decoration: none; padding: 8px 14px; background: #eef6ff; color: #1e88e5; border-radius: 8px; font-weight: bold; border: 1px solid #d9e8fb; transition: 0.2s;">Zobacz szczegóły</a>
+            ${!isCancelled ? `<button type="button" class="cancel-booking-btn" data-booking-id="${booking.id}" style="font-size: 13px; padding: 8px 14px; background: #fef2f2; color: #dc2626; border-radius: 8px; font-weight: bold; border: 1px solid #fecaca; cursor: pointer; transition: 0.2s;">Anuluj rezerwację</button>` : ''}
           </div>
         </div>
       `;
     }).join("");
+
+    // Bind cancel buttons
+    document.querySelectorAll(".cancel-booking-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const bookingId = btn.dataset.bookingId;
+        if (!confirm("Czy na pewno chcesz anulować tę rezerwację?")) return;
+        
+        try {
+          const cancelResponse = await fetch(`${API_BASE}/api/bookings/${bookingId}/cancel/`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+          
+          if (cancelResponse.ok) {
+            alert("Rezerwacja została anulowana.");
+            window.location.reload();
+          } else {
+            const errData = await cancelResponse.json();
+            alert(errData.error || "Nie udało się anulować rezerwacji.");
+          }
+        } catch (error) {
+          console.error("Błąd anulowania:", error);
+          alert("Wystąpił błąd przy anulowaniu rezerwacji.");
+        }
+      });
+    });
 
   } catch (error) {
     console.error("Błąd podczas ładowania rezerwacji:", error);

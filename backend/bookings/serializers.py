@@ -1,13 +1,18 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import Offer, Category, Tag, ContactMessage, Booking
+from .models import Offer, Category, Tag, ContactMessage, Booking, Review
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     topic = serializers.CharField(source='subject', required=True)
     class Meta:
         model = ContactMessage
         fields = ['name', 'email', 'topic', 'message']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'author_name', 'rating', 'body', 'created_at']
 
 class OfferSerializer(serializers.ModelSerializer):
     tags_list = serializers.SlugRelatedField(
@@ -16,17 +21,59 @@ class OfferSerializer(serializers.ModelSerializer):
     category_name = serializers.SlugRelatedField(
         read_only=True, slug_field='name', source='category'
     )
+    reviews = ReviewSerializer(many=True, read_only=True)
+    is_available = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
         fields = '__all__'
+    
+    def get_is_available(self, obj):
+        """Domyślnie True, chyba że kontekst zawiera daty do sprawdzenia."""
+        check_in = self.context.get('check_in')
+        check_out = self.context.get('check_out')
+        if not check_in or not check_out:
+            return True
+        # Sprawdź czy istnieje nakładająca się aktywna rezerwacja
+        overlapping = Booking.objects.filter(
+            offer=obj,
+            status='confirmed',
+            check_in__lt=check_out,
+            check_out__gt=check_in
+        ).exists()
+        return not overlapping
 
 class BookingSerializer(serializers.ModelSerializer):
     offer_details = OfferSerializer(source='offer', read_only=True)
     
     class Meta:
         model = Booking
-        fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 'total_price', 'created_at']
+        fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 
+                  'guests', 'rooms', 'room_type', 'total_price', 'status', 'created_at']
+        read_only_fields = ['status', 'created_at']
+    
+    def validate(self, attrs):
+        check_in = attrs.get('check_in')
+        check_out = attrs.get('check_out')
+        offer = attrs.get('offer')
+        
+        if check_in and check_out:
+            if check_in >= check_out:
+                raise serializers.ValidationError("Data wymeldowania musi być późniejsza niż data zameldowania.")
+            
+            # Sprawdź nakładające się rezerwacje
+            overlapping = Booking.objects.filter(
+                offer=offer,
+                status='confirmed',
+                check_in__lt=check_out,
+                check_out__gt=check_in
+            ).exists()
+            if overlapping:
+                raise serializers.ValidationError(
+                    "Ten obiekt jest już zarezerwowany w wybranym terminie. Wybierz inne daty."
+                )
+        
+        return attrs
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -68,5 +115,20 @@ class RegisterSerializer(serializers.Serializer):
         )
         return user
 
+class UserProfileUpdateSerializer(serializers.Serializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    phone = serializers.CharField(required=False, allow_blank=True)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
     
-    
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['confirm_password']:
+            raise serializers.ValidationError("Nowe hasła się nie zgadzają.")
+        if len(attrs['new_password']) < 8:
+            raise serializers.ValidationError("Nowe hasło musi mieć co najmniej 8 znaków.")
+        return attrs

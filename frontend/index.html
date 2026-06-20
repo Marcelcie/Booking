@@ -16,7 +16,7 @@
 
   <header class="header">
     <div class="container navbar">
-      <h1 class="logo">BookSpace</h1>
+      <h1 class="logo"><a href="index.html">BookSpace</a></h1>
 
       <nav class="nav">
         <a href="index.html">Strona główna</a>
@@ -115,7 +115,7 @@
               </div>
             </div>
 
-            <button type="button" class="btn btn-full" onclick="const loc=document.getElementById('location').value; window.location.href='pages/oferty.html' + (loc ? '?location='+encodeURIComponent(loc) : '');">
+            <button type="button" class="btn btn-full" onclick="const loc=document.getElementById('location').value; const ci=document.getElementById('checkin').value; const co=document.getElementById('checkout').value; let params=[]; if(loc) params.push('location='+encodeURIComponent(loc)); if(ci) params.push('check_in='+ci); if(co) params.push('check_out='+co); window.location.href='pages/oferty.html' + (params.length ? '?'+params.join('&') : '');">
               Szukaj
             </button>
           </form>
@@ -128,12 +128,7 @@
         <h2 class="section-title">Popularne oferty</h2>
 
         <div class="offers-tabs">
-          <button class="tab-btn active" data-category="wedrowki">Wędrówki</button>
-          <button class="tab-btn" data-category="wellness">Wellness</button>
-          <button class="tab-btn" data-category="festiwale">Festiwale & Wydarzenia</button>
-          <button class="tab-btn" data-category="kultura">Dziedzictwo i Kultura</button>
-          <button class="tab-btn" data-category="historyczne">Wyprawy historyczne</button>
-          <button class="tab-btn" data-category="rodzinne">Wycieczki Rodzinne</button>
+          <!-- Tabs are built dynamically from database categories in script.js -->
         </div>
 
         <div class="carousel-wrapper">
@@ -174,17 +169,35 @@
         <div class="project-cards">
           <div class="project-card">
             <h3>Popularne miasta</h3>
-            <p>Kraków, Gdańsk, Zakopane, Warszawa, Wrocław</p>
+            <p>
+              <a href="pages/oferty.html?location=Kraków">Kraków</a>, 
+              <a href="pages/oferty.html?location=Gdańsk">Gdańsk</a>, 
+              <a href="pages/oferty.html?location=Zakopane">Zakopane</a>, 
+              <a href="pages/oferty.html?location=Warszawa">Warszawa</a>, 
+              <a href="pages/oferty.html?location=Wrocław">Wrocław</a>
+            </p>
           </div>
 
           <div class="project-card">
             <h3>Najczęściej wybierane</h3>
-            <p>Hotele, apartamenty, domki, pensjonaty, resorty</p>
+            <p>
+              <a href="pages/oferty.html?type=hotel">Hotele</a>, 
+              <a href="pages/oferty.html?type=apartament">apartamenty</a>, 
+              <a href="pages/oferty.html?type=domek">domki</a>, 
+              <a href="pages/oferty.html?type=pensjonat">pensjonaty</a>, 
+              <a href="pages/oferty.html?type=resort">resorty</a>
+            </p>
           </div>
 
           <div class="project-card">
             <h3>Rodzaje wyjazdów</h3>
-            <p>Wellness, rodzinne, historyczne, miejskie i aktywne</p>
+            <p>
+              <a href="pages/oferty.html?tag=Spa %26 Wellness">Wellness</a>, 
+              <a href="pages/oferty.html?tag=Rodzinne">rodzinne</a>, 
+              <a href="pages/oferty.html?tag=Historyczne">historyczne</a>, 
+              <a href="pages/oferty.html?tag=Miejskie">miejskie</a> i 
+              <a href="pages/oferty.html?tag=Aktywne">aktywne</a>
+            </p>
           </div>
         </div>
       </div>
@@ -231,6 +244,7 @@
     </div>
   </footer>
 
+  <script src="js/config.js"></script>
   <script src="js/script.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/favorites.js"></script>

@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 # --- TAGI ---
 class Tag(models.Model):
@@ -47,16 +49,28 @@ class Offer(models.Model):
 
 # --- REZERWACJE ---
 class Booking(models.Model):
+    STATUS_CHOICES = [
+        ('confirmed', 'Potwierdzona'),
+        ('cancelled', 'Anulowana'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    offer = models.ForeignKey(Offer, on_delete=models.CASCADE)
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='bookings')
     check_in = models.DateField()
     check_out = models.DateField()
+    guests = models.IntegerField(default=2)
+    rooms = models.IntegerField(default=1)
+    room_type = models.CharField(max_length=50, default='standard')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         verbose_name = "Rezerwacja"
         verbose_name_plural = "Rezerwacje"
+    
+    def __str__(self):
+        return f"Rezerwacja #{self.id} - {self.offer.title} ({self.check_in} -> {self.check_out})"
 
 # --- ULUBIONE ---
 class Favorite(models.Model):
@@ -95,3 +109,18 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.subject} - od: {self.name}"
+
+# --- OPINIE ---
+class Review(models.Model):
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='reviews')
+    author_name = models.CharField(max_length=100, verbose_name="Autor")
+    rating = models.FloatField(verbose_name="Ocena")
+    body = models.TextField(verbose_name="Treść opinii")
+    created_at = models.DateField(auto_now_add=True, verbose_name="Data dodania")
+
+    class Meta:
+        verbose_name = "Opinia"
+        verbose_name_plural = "Opinie"
+
+    def __str__(self):
+        return f"Opinia {self.author_name} - {self.offer.title} ({self.rating}/10)"

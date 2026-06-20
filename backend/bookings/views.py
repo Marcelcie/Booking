@@ -1,19 +1,20 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import login
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
-from .models import Offer, Category, Booking
+from .models import Offer, Category, Booking, Favorite, UserProfile
 from .serializers import (
     OfferSerializer, 
     RegisterSerializer, 
     LoginSerializer,
     ContactMessageSerializer,
-    BookingSerializer
+    BookingSerializer,
+    UserProfileUpdateSerializer,
+    ChangePasswordSerializer
 )
 
-# --- REJESTRACJA I LOGOWANIE ---
+# --- REJESTRACJA ---
 class RegisterView(APIView):
     """
     rejestracja uzytkownika
@@ -28,20 +29,6 @@ class RegisterView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginView(APIView):
-    """
-    Logowanie użytkownika
-    """
-    def post(self,request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.validated_data['user']
-            login(request,user)
-            return Response(
-                {"message":"Zalogowano poprawnie"},status=status.HTTP_200_OK   
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 # --- PROFIL UŻYTKOWNIKA ---
 
 class UserProfileView(APIView):
@@ -52,14 +39,58 @@ class UserProfileView(APIView):
     
     def get(self, request):
         user = request.user
+        profile, _ = UserProfile.objects.get_or_create(user=user)
         return Response({
             'name': user.first_name or user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
             'email': user.email,
+            'phone': profile.phone,
             'role': 'user'
         })
+    
+    def put(self, request):
+        """Aktualizacja profilu użytkownika."""
+        serializer = UserProfileUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if 'first_name' in serializer.validated_data:
+                user.first_name = serializer.validated_data['first_name']
+            if 'last_name' in serializer.validated_data:
+                user.last_name = serializer.validated_data['last_name']
+            if 'email' in serializer.validated_data:
+                user.email = serializer.validated_data['email']
+            user.save()
+            
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            if 'phone' in serializer.validated_data:
+                profile.phone = serializer.validated_data['phone']
+                profile.save()
+            
+            return Response({'message': 'Profil zaktualizowany pomyślnie.'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    """
+    Zmiana hasła zalogowanego użytkownika.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if not user.check_password(serializer.validated_data['current_password']):
+                return Response(
+                    {'error': 'Obecne hasło jest nieprawidłowe.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({'message': 'Hasło zmienione pomyślnie.'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # --- ULUBIONE (WATCHLIST) ---
-from .models import Favorite
 
 class FavoriteToggleView(APIView):
     """
@@ -98,10 +129,17 @@ class FavoriteListView(APIView):
 class OfferListView(APIView):
     """
     Zwraca listę wszystkich dostępnych ofert.
+    Opcjonalne query params: check_in, check_out (format YYYY-MM-DD)
     """
     def get(self, request):
         offers = Offer.objects.all()
-        serializer = OfferSerializer(offers, many=True)
+        
+        # Filtrowanie dostępności po datach
+        check_in = request.query_params.get('check_in')
+        check_out = request.query_params.get('check_out')
+        
+        context = {'check_in': check_in, 'check_out': check_out}
+        serializer = OfferSerializer(offers, many=True, context=context)
         return Response(serializer.data)
 
 class OfferDetailView(APIView):
@@ -127,6 +165,38 @@ class OfferGroupedView(APIView):
             offers = Offer.objects.filter(category=cat)
             data[cat.name] = OfferSerializer(offers, many=True).data
         return Response(data)
+
+class OfferAvailabilityView(APIView):
+    """
+    Sprawdza dostępność oferty w podanym terminie.
+    """
+    def get(self, request, pk):
+        try:
+            offer = Offer.objects.get(pk=pk)
+        except Offer.DoesNotExist:
+            return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+        
+        check_in = request.query_params.get('check_in')
+        check_out = request.query_params.get('check_out')
+        
+        if not check_in or not check_out:
+            bookings = Booking.objects.filter(offer=offer, status='confirmed')
+            booked_ranges = [{'from': b.check_in, 'to': b.check_out} for b in bookings]
+            return Response({'available': True, 'booked_dates': booked_ranges})
+        
+        overlapping = Booking.objects.filter(
+            offer=offer,
+            status='confirmed',
+            check_in__lt=check_out,
+            check_out__gt=check_in
+        ).exists()
+        
+        return Response({
+            'available': not overlapping,
+            'offer_id': pk,
+            'check_in': check_in,
+            'check_out': check_out
+        })
 
 class RankingGroupedView(APIView):
     """
@@ -174,3 +244,21 @@ class BookingListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class BookingCancelView(APIView):
+    """
+    Anulowanie rezerwacji zalogowanego użytkownika
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk, user=request.user)
+        except Booking.DoesNotExist:
+            return Response({'error': 'Rezerwacja nie istnieje.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        if booking.status == 'cancelled':
+            return Response({'error': 'Ta rezerwacja jest już anulowana.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        booking.status = 'cancelled'
+        booking.save()
+        return Response({'message': 'Rezerwacja została anulowana.', 'status': 'cancelled'})

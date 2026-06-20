@@ -16,12 +16,46 @@ function setAuthToken(token) {
   localStorage.setItem("bookspace_token", token);
 }
 
+function setRefreshToken(token) {
+  localStorage.setItem("bookspace_refresh_token", token);
+}
+
+function getRefreshToken() {
+  return localStorage.getItem("bookspace_refresh_token");
+}
+
 function removeAuthToken() {
   localStorage.removeItem("bookspace_token");
+  localStorage.removeItem("bookspace_refresh_token");
 }
 
 function getHomePath() {
   return window.location.pathname.includes("/pages/") ? "../index.html" : "index.html";
+}
+
+async function refreshAccessToken() {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return false;
+
+  try {
+    const response = await fetch(`${API_BASE}/api/token/refresh/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken })
+    });
+
+    if (!response.ok) {
+      removeAuthToken();
+      return false;
+    }
+
+    const data = await response.json();
+    setAuthToken(data.access);
+    return true;
+  } catch (error) {
+    console.error("Błąd odświeżania tokena:", error);
+    return false;
+  }
 }
 
 async function fetchUserProfile() {
@@ -29,14 +63,26 @@ async function fetchUserProfile() {
   if (!token) return null;
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/me/", {
+    const response = await fetch(`${API_BASE}/api/me/`, {
       headers: {
         "Authorization": `Bearer ${token}`
       }
     });
 
     if (response.status === 401) {
-      // Token wygasł lub jest nieprawidłowy
+      // Spróbuj odświeżyć token
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        // Powtórz request z nowym tokenem
+        const retryResponse = await fetch(`${API_BASE}/api/me/`, {
+          headers: {
+            "Authorization": `Bearer ${getAuthToken()}`
+          }
+        });
+        if (retryResponse.ok) {
+          return await retryResponse.json();
+        }
+      }
       removeAuthToken();
       return null;
     }
@@ -97,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         // Wysyłamy prośbę o token z backendu
         // Używamy emaila jako username, bo tak ustawiliśmy to w backendzie
-        const response = await fetch("http://127.0.0.1:8000/api/token/", {
+        const response = await fetch(`${API_BASE}/api/token/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: email, password: password })
@@ -110,8 +156,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const data = await response.json();
         
-        // Zapisujemy token dostępu (JWT) w localStorage
+        // Zapisujemy oba tokeny JWT w localStorage
         setAuthToken(data.access);
+        setRefreshToken(data.refresh);
         
         // Przekierowujemy do konta
         window.location.href = "konto.html";
@@ -143,16 +190,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      if (password.length < 8) {
+        alert("Hasło musi mieć co najmniej 8 znaków.");
+        return;
+      }
+
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/register/", {
+        const response = await fetch(`${API_BASE}/api/register/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, fullname })
+          body: JSON.stringify({ 
+            email, 
+            password, 
+            confirm_password: confirmPassword,
+            fullname 
+          })
         });
 
         if (!response.ok) {
           const errData = await response.json();
-          alert(errData.error || "Błąd podczas rejestracji.");
+          // Django REST zwraca błędy w formacie {non_field_errors: [...]} lub {field: [...]}
+          const messages = errData.non_field_errors || Object.values(errData).flat();
+          alert(messages.join('\n') || "Błąd podczas rejestracji.");
           return;
         }
 

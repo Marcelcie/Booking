@@ -2,7 +2,7 @@ async function getFavorites() {
   const token = localStorage.getItem("bookspace_token");
   if (token) {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/favorites/", {
+      const response = await fetch(`${API_BASE}/api/favorites/`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -22,7 +22,7 @@ async function toggleFavorite(item) {
   const token = localStorage.getItem("bookspace_token");
   if (token) {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/favorites/toggle/${item.id}/`, {
+      const response = await fetch(`${API_BASE}/api/favorites/toggle/${item.id}/`, {
         method: "POST",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -101,6 +101,13 @@ async function bindFavoriteButtons() {
   await updateFavoriteButtons();
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 async function renderFavoritesOnAccount() {
   const container = document.getElementById("favorites-list");
   const countEl = document.getElementById("favorites_watchlist_count");
@@ -126,11 +133,11 @@ async function renderFavoritesOnAccount() {
     const link = item.link || `oferta-szczegoly.html?id=${item.id}`;
     return `
     <div class="favorite-account-card">
-      <img src="${img}" alt="${item.title}" />
+      <img src="${escapeHtml(img)}" alt="${escapeHtml(item.title)}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop';" />
       <div class="favorite-account-content">
-        <h4>${item.title}</h4>
-        <p>📍 ${item.location}</p>
-        <p><strong>Typ:</strong> ${item.type}</p>
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>📍 ${escapeHtml(item.location)}</p>
+        <p><strong>Typ:</strong> ${escapeHtml(item.type)}</p>
         <p><strong>Cena od:</strong> ${item.price} zł</p>
         <a href="${link}" class="offer-btn">Zobacz ofertę</a>
       </div>
