@@ -91,6 +91,7 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
     fullname = serializers.CharField(required=True)
+    is_owner = serializers.BooleanField(required=False, default=False)
 
     def validate(self, attrs):
         if User.objects.filter(email=attrs['email']).exists():
@@ -113,6 +114,9 @@ class RegisterSerializer(serializers.Serializer):
             password = validated_data['password'],
             username = validated_data['email'],
         )
+        # Create UserProfile with is_owner flag
+        from .models import UserProfile
+        UserProfile.objects.create(user=user, is_owner=validated_data.get('is_owner', False))
         return user
 
 class UserProfileUpdateSerializer(serializers.Serializer):
@@ -132,3 +136,16 @@ class ChangePasswordSerializer(serializers.Serializer):
         if len(attrs['new_password']) < 8:
             raise serializers.ValidationError("Nowe hasło musi mieć co najmniej 8 znaków.")
         return attrs
+
+class OwnerBookingSerializer(serializers.ModelSerializer):
+    offer_details = OfferSerializer(source='offer', read_only=True)
+    guest_name = serializers.CharField(source='user.first_name', read_only=True)
+    guest_email = serializers.CharField(source='user.email', read_only=True)
+    guest_phone = serializers.CharField(source='user.profile.phone', read_only=True)
+    
+    class Meta:
+        model = Booking
+        fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 
+                  'guests', 'rooms', 'room_type', 'total_price', 'status', 'created_at',
+                  'guest_name', 'guest_email', 'guest_phone']
+        read_only_fields = ['status', 'created_at']

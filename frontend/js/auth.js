@@ -106,6 +106,23 @@ async function updateNavbar() {
   if (user) {
     guestLinks.style.display = "none";
     accountLinks.style.display = "flex";
+    
+    if (user.role === 'owner') {
+      if (!document.getElementById("owner-nav-link")) {
+        const ownerLink = document.createElement("a");
+        ownerLink.id = "owner-nav-link";
+        ownerLink.href = window.location.pathname.includes("/pages/") ? "moj-hotel.html" : "pages/moj-hotel.html";
+        ownerLink.textContent = "Mój hotel";
+        ownerLink.className = "account-link";
+        
+        const logoutBtn = document.querySelector(".logout-btn-link");
+        if (logoutBtn) {
+          accountLinks.insertBefore(ownerLink, logoutBtn);
+        } else {
+          accountLinks.appendChild(ownerLink);
+        }
+      }
+    }
   } else {
     guestLinks.style.display = "flex";
     accountLinks.style.display = "none";
@@ -179,6 +196,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const email = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
       const confirmPassword = document.getElementById("confirm-password").value.trim();
+      const isOwnerCheckbox = document.getElementById("is-owner");
+      const isOwner = isOwnerCheckbox ? isOwnerCheckbox.checked : false;
 
       if (!fullname || !email || !password || !confirmPassword) {
         alert("Uzupełnij wszystkie pola.");
@@ -203,7 +222,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             email, 
             password, 
             confirm_password: confirmPassword,
-            fullname 
+            fullname,
+            is_owner: isOwner
           })
         });
 

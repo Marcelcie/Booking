@@ -29,6 +29,7 @@ class Category(models.Model):
 # --- OFERTY ---
 class Offer(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='offers')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='owned_offers', verbose_name="Właściciel")
     title = models.CharField(max_length=255)
     type = models.CharField(max_length=100)
     location = models.CharField(max_length=255)
@@ -87,6 +88,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone = models.CharField(max_length=20, blank=True)
     city = models.CharField(max_length=100, blank=True)
+    is_owner = models.BooleanField(default=False, verbose_name="Właściciel hotelu")
     
     class Meta:
         verbose_name = "Profil Użytkownika"
