@@ -223,7 +223,32 @@
   </style>
 </head>
 <body>
-  <div id="navbar-container"></div>
+  <div id="global-preloader"><div class="spinner"></div></div>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo"><a href="../index.html">BookSpace</a></h1>
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <!-- Bell injected by auth.js -->
+          <a href="moj-hotel.html" id="owner-nav-link" class="account-link">Mój hotel</a>
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
   <div id="toast-container" class="toast-container"></div>
 
   <main class="container" style="max-width: 1000px; padding-bottom: 80px;">

@@ -194,6 +194,5 @@ async function deleteFAQ(id) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadNavbar();
   loadManageData();
 });
