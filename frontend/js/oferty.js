@@ -35,10 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let allFetchedOffers = [];
 
-// --- Dodane dynamiczne ładowanie ofert z bazy danych ---
+// --- Dynamiczne ładowanie ofert z bazy danych ---
 async function loadOfertyData() {
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/offers/');
+    const response = await fetch(`${API_BASE}/api/offers/`);
     if (!response.ok) throw new Error('Błąd sieci');
     allFetchedOffers = await response.json();
     applyFilters();
@@ -47,6 +47,13 @@ async function loadOfertyData() {
     const container = document.getElementById('offersResults');
     if (container) container.innerHTML = '<p>Nie udało się pobrać ofert.</p>';
   }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 function applyFilters() {
@@ -77,11 +84,48 @@ function applyFilters() {
     filtered = filtered.filter(offer => offer.price <= priceFilter);
   }
 
-  // 3. Typ obiektu
+  // 3. Typ obiektu (z pill filtrów lub z URL)
   let typeFilter = "";
   if (activePill && activePill.textContent !== "Wszystkie") {
     typeFilter = activePill.textContent.toLowerCase();
-    filtered = filtered.filter(offer => offer.type && offer.type.toLowerCase() === typeFilter);
+  } else {
+    const urlParamsForType = new URLSearchParams(window.location.search);
+    const typeParam = urlParamsForType.get('type');
+    if (typeParam) {
+      typeFilter = typeParam.toLowerCase();
+    }
+  }
+
+  if (typeFilter) {
+    const typeMapping = {
+      "apartament": ["apartment", "apartament"],
+      "hotel": ["hotel"],
+      "villa": ["villa", "willa"],
+      "hostel": ["hostel"],
+      "domek": ["domek", "cabin", "house", "cottage"],
+      "wellness": ["wellness", "spa", "resort"],
+      "resort": ["wellness", "spa", "resort"],
+      "pensjonat": ["guesthouse", "pensjonat"]
+    };
+    
+    const mappedTypes = typeMapping[typeFilter] || [typeFilter];
+    
+    filtered = filtered.filter(offer => 
+      offer.type && mappedTypes.some(t => offer.type.toLowerCase().includes(t))
+    );
+  }
+
+  // 3b. Tag / Rodzaj wyjazdu (z URL)
+  const urlParams = new URLSearchParams(window.location.search);
+  const tagParam = urlParams.get('tag');
+  let tagFilter = "";
+  if (tagParam) {
+    tagFilter = tagParam;
+    const normalize = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const normalizedTagParam = normalize(tagFilter);
+    filtered = filtered.filter(offer => 
+      offer.tags_list && offer.tags_list.some(tag => normalize(tag).includes(normalizedTagParam))
+    );
   }
 
   // 4. Sortowanie
@@ -99,10 +143,10 @@ function applyFilters() {
   }
 
   renderOffers(filtered);
-  updateActiveFilters(locFilter, priceFilter, typeFilter);
+  updateActiveFilters(locFilter, priceFilter, typeFilter, tagFilter);
 }
 
-function updateActiveFilters(loc, price, type) {
+function updateActiveFilters(loc, price, type, tag) {
   const container = document.querySelector(".active-filters");
   if (!container) return;
   
@@ -116,32 +160,40 @@ function updateActiveFilters(loc, price, type) {
   if (type) {
     container.innerHTML += `<span class="active-filter-tag">${type.charAt(0).toUpperCase() + type.slice(1)}</span>`;
   }
+  if (tag) {
+    container.innerHTML += `<span class="active-filter-tag">${tag} <a href="oferty.html" style="color: #ffffff; margin-left: 6px; font-weight: bold; text-decoration: none;">&times;</a></span>`;
+  }
 }
 
 function renderOffers(offers) {
   const container = document.getElementById('offersResults');
   if (!container) return;
 
+  if (offers.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding: 40px; color: #6b7280;">Brak ofert spełniających wybrane kryteria.</p>';
+    return;
+  }
+
   container.innerHTML = offers.map(offer => `
     <div class="offer-result-card">
       <div class="offer-result-image" style="position: relative;">
         <button class="favorite-btn"
           data-offer-id="${offer.id}"
-          data-title="${offer.title}"
-          data-location="${offer.location}"
-          data-type="${offer.type}"
+          data-title="${escapeHtml(offer.title)}"
+          data-location="${escapeHtml(offer.location)}"
+          data-type="${escapeHtml(offer.type)}"
           data-price="${offer.price}"
-          data-image="${offer.image_url}"
+          data-image="${escapeHtml(offer.image_url)}"
           data-link="oferta-szczegoly.html?id=${offer.id}"
           type="button">♡</button>
-        <img src="${offer.image_url}" alt="${offer.title}" />
+        <img src="${escapeHtml(offer.image_url)}" alt="${escapeHtml(offer.title)}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop';" />
       </div>
 
       <div class="offer-result-content">
         <div class="offer-result-main">
-          <span class="offer-type-badge">${offer.type}</span>
-          <h3>${offer.title}</h3>
-          <p class="offer-result-location">📍 ${offer.location}</p>
+          <span class="offer-type-badge">${escapeHtml(offer.type)}</span>
+          <h3>${escapeHtml(offer.title)}</h3>
+          <p class="offer-result-location">📍 ${escapeHtml(offer.location)}</p>
 
           <div class="offer-stars-row">
             <div class="offer-stars">
@@ -151,15 +203,15 @@ function renderOffers(offers) {
             <span class="offer-stars-text">${offer.stars}/5</span>
           </div>
 
-          <p class="offer-result-description">${offer.description}</p>
+          <p class="offer-result-description">${escapeHtml(offer.description)}</p>
 
           <div class="offer-tags">
-            ${(offer.tags_list || []).map(tag => `<span>${tag}</span>`).join('')}
+            ${(offer.tags_list || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}
           </div>
         </div>
 
         <div class="offer-result-side">
-          <p class="offer-rating-label">${(offer.rating >= 9.0 ? 'Fantastyczny' : 'Bardzo dobry')}</p>
+          <p class="offer-rating-label">${getRatingLabel(offer.rating)}</p>
           <div class="offer-rating">${offer.rating}</div>
           <p class="offer-reviews">${offer.reviews_count} opinii</p>
 
@@ -179,13 +231,31 @@ function renderOffers(offers) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Odczyt parametru wyszukiwania z adresu URL
+  // Odczyt parametrów z adresu URL
   const urlParams = new URLSearchParams(window.location.search);
   const locationParam = urlParams.get('location');
+  const typeParam = urlParams.get('type');
   
   if (locationParam) {
     const searchLocationInput = document.getElementById("search-location");
     if (searchLocationInput) searchLocationInput.value = locationParam;
+  }
+  
+  // Obsługa parametru ?type= z URL - ustaw aktywny pill
+  if (typeParam) {
+    const pills = document.querySelectorAll(".pill");
+    let matched = false;
+    pills.forEach(pill => {
+      if (pill.textContent.toLowerCase() === typeParam.toLowerCase()) {
+        pills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        matched = true;
+      }
+    });
+    // Jeśli nie znaleziono pasującego pill, odznacz "Wszystkie"
+    if (!matched) {
+      // Typ z URL nie pasuje do żadnego pill - zostaw "Wszystkie" aktywne
+    }
   }
 
   // Obsługa przycisku "Zastosuj filtry" na stronie ofert
@@ -196,5 +266,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Obsługa sortowania - natychmiast po zmianie
+  const sortSelect = document.getElementById("sort");
+  if (sortSelect) {
+    sortSelect.addEventListener("change", () => {
+      applyFilters();
+    });
+  }
+
   loadOfertyData();
 });
+
+function getRatingLabel(rating) {
+  const value = Number(rating);
+  if (value >= 9.0) return "Fantastyczny";
+  if (value >= 8.0) return "Bardzo dobry";
+  if (value >= 7.0) return "Dobry";
+  if (value >= 4.0) return "Przeciętny";
+  return "Zły";
+}

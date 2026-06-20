@@ -16,7 +16,7 @@ if (!offerId) {
 
 async function loadOffer() {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/offers/${offerId}/`);
+    const response = await fetch(`${API_BASE}/api/offers/${offerId}/`);
 
     if (!response.ok) {
       throw new Error("Nie udało się pobrać danych oferty.");
@@ -34,13 +34,20 @@ async function loadOffer() {
     document.getElementById("deluxe-price").textContent = `${roomPrices.deluxe} zł / noc`;
     document.getElementById("premium-price").textContent = `${roomPrices.premium} zł / noc`;
 
-    document.getElementById("summary-image").src = currentOffer.image_url;
-    document.getElementById("summary-image").alt = currentOffer.title;
+    const imgEl = document.getElementById("summary-image");
+    imgEl.src = currentOffer.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop";
+    imgEl.onerror = () => { imgEl.src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop"; };
+    imgEl.alt = currentOffer.title;
     document.getElementById("summary-type").textContent = currentOffer.type;
     document.getElementById("summary-title").textContent = currentOffer.title;
     document.getElementById("summary-location").textContent = `📍 ${currentOffer.location}`;
     document.getElementById("summary-rating").textContent = currentOffer.rating;
     document.getElementById("summary-rating-label").textContent = getRatingLabel(currentOffer.rating);
+    
+    // Ustaw minimalną datę zameldowania na dziś
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("checkin").setAttribute("min", today);
+    document.getElementById("checkout").setAttribute("min", today);
 
     updateSummary();
   } catch (error) {
@@ -51,13 +58,11 @@ async function loadOffer() {
 
 function getRatingLabel(rating) {
   const value = Number(rating);
-
-  if (value >= 9.5) return "Fantastyczny";
-  if (value >= 9.0) return "Wspaniały";
+  if (value >= 9.0) return "Fantastyczny";
   if (value >= 8.0) return "Bardzo dobry";
   if (value >= 7.0) return "Dobry";
-
-  return "Przyzwoity";
+  if (value >= 4.0) return "Przeciętny";
+  return "Zły";
 }
 
 function calculateNights(checkin, checkout) {
@@ -103,14 +108,16 @@ function formatGuests(value) {
   const number = Number(value);
 
   if (number === 1) return "1 osoba";
-  return `${number} osoby`;
+  if (number >= 2 && number <= 4) return `${number} osoby`;
+  return `${number} osób`;
 }
 
 function formatRooms(value) {
   const number = Number(value);
 
   if (number === 1) return "1 pokój";
-  return `${number} pokoje`;
+  if (number >= 2 && number <= 4) return `${number} pokoje`;
+  return `${number} pokoi`;
 }
 
 function updateSummary() {
@@ -121,7 +128,14 @@ function updateSummary() {
 
   const nights = calculateNights(checkin, checkout);
   const selectedRoom = getSelectedRoom();
-  const totalPrice = nights * selectedRoom.price;
+  const totalPrice = nights * selectedRoom.price * Number(rooms);
+
+  // Automatycznie ustaw minimalną datę wymeldowania
+  if (checkin) {
+    const nextDay = new Date(checkin);
+    nextDay.setDate(nextDay.getDate() + 1);
+    document.getElementById("checkout").setAttribute("min", nextDay.toISOString().split('T')[0]);
+  }
 
   document.getElementById("summary-stay").innerHTML = `
     <h4>Twój pobyt</h4>
@@ -140,7 +154,21 @@ function goBackToOffer() {
   window.location.href = `oferta-szczegoly.html?id=${offerId}`;
 }
 
-function goNext() {
+async function checkAvailability(checkin, checkout) {
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/offers/${offerId}/availability/?check_in=${checkin}&check_out=${checkout}`
+    );
+    if (!response.ok) return true; // W razie błędu pozwól kontynuować
+    const data = await response.json();
+    return data.available;
+  } catch (error) {
+    console.error("Błąd sprawdzania dostępności:", error);
+    return true;
+  }
+}
+
+async function goNext() {
   const checkin = document.getElementById("checkin").value;
   const checkout = document.getElementById("checkout").value;
   const guests = document.getElementById("guests").value;
@@ -163,6 +191,20 @@ function goNext() {
     alert("Data wymeldowania musi być późniejsza niż data zameldowania.");
     return;
   }
+  
+  // Sprawdź, czy data zameldowania nie jest w przeszłości
+  const today = new Date().toISOString().split('T')[0];
+  if (checkin < today) {
+    alert("Data zameldowania nie może być w przeszłości.");
+    return;
+  }
+
+  // Sprawdź dostępność w wybranym terminie
+  const available = await checkAvailability(checkin, checkout);
+  if (!available) {
+    alert("Ten obiekt jest już zarezerwowany w wybranym terminie. Proszę wybrać inne daty.");
+    return;
+  }
 
   const bookingData = {
     offer_id: Number(offerId),
@@ -181,7 +223,7 @@ function goNext() {
     room_key: selectedRoom.key,
     room_type: selectedRoom.name,
     price_per_night: selectedRoom.price,
-    total_price: nights * selectedRoom.price
+    total_price: nights * selectedRoom.price * Number(rooms)
   };
 
   localStorage.setItem("bookspace_booking", JSON.stringify(bookingData));

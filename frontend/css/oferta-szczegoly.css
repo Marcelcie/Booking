@@ -84,7 +84,12 @@
 .details-main {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+}
+
+#details-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px; /* Zwiększona odległość między kafelkami */
 }
 
 .details-card {

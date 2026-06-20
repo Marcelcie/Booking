@@ -1,5 +1,5 @@
 let allOffers = {};
-let currentCategory = "wedrowki";
+let currentCategory = null;
 let currentSlide = 0;
 let autoplayInterval = null;
 
@@ -23,7 +23,7 @@ let guestState = {
 function updateGuestSummary() {
   const adultText = guestState.adults === 1 ? "dorosły" : "dorosłych";
   const childText = guestState.children === 1 ? "dziecko" : "dzieci";
-  const roomText = guestState.rooms === 1 ? "pokój" : "pokój";
+  const roomText = guestState.rooms === 1 ? "pokój" : "pokoje";
 
   const summaryText = `${guestState.adults} ${adultText} · ${guestState.children} ${childText} · ${guestState.rooms} ${roomText}`;
 
@@ -67,8 +67,7 @@ countButtons.forEach(button => {
 /* OFFERS */
 async function loadOffers() {
   try {
-    // Podłączamy prawdziwe Django API!
-    const response = await fetch('http://127.0.0.1:8000/api/grouped-offers/');
+    const response = await fetch(`${API_BASE}/api/grouped-offers/`);
     
     if (!response.ok) {
       throw new Error('Błąd pobierania danych z backendu!');
@@ -78,7 +77,9 @@ async function loadOffers() {
     console.log("Dane pobrane z backendu:", data);
     
     allOffers = data;
-
+    
+    // Dynamicznie utwórz tabs z kategorii z bazy
+    buildCategoryTabs();
     renderCarousel();
     startAutoplay();
   } catch (error) {
@@ -89,12 +90,71 @@ async function loadOffers() {
   }
 }
 
+function buildCategoryTabs() {
+  const tabsContainer = document.querySelector(".offers-tabs");
+  if (!tabsContainer) return;
+  
+  const categoryKeys = Object.keys(allOffers);
+  if (categoryKeys.length === 0) return;
+  
+  // Ustaw domyślną kategorię na pierwszą dostępną
+  currentCategory = categoryKeys[0];
+  
+  // Mapowanie nazw kategorii na polskie wyświetlane nazwy
+  const displayNames = {
+    'hotels': 'Hotele',
+    'apartments': 'Apartamenty',
+    'resorts': 'Resorty',
+    'apartament': 'Apartamenty',
+    'wellness': 'Wellness',
+    'wedrowki': 'Wędrówki',
+    'festiwale': 'Festiwale',
+    'kultura': 'Kultura',
+    'historyczne': 'Historyczne',
+    'rodzinne': 'Rodzinne'
+  };
+  
+  tabsContainer.innerHTML = "";
+  
+  // Dodaj przycisk "Wszystkie"
+  const allBtn = document.createElement("button");
+  allBtn.className = "tab-btn";
+  allBtn.dataset.category = "__all__";
+  allBtn.textContent = "Wszystkie";
+  tabsContainer.appendChild(allBtn);
+  
+  categoryKeys.forEach((key, index) => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn";
+    if (index === 0) btn.classList.add("active");
+    btn.dataset.category = key;
+    btn.textContent = displayNames[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    tabsContainer.appendChild(btn);
+  });
+  
+  // Oznacz pierwszą kategorię jako aktywną
+  const firstCatBtn = tabsContainer.querySelector(`.tab-btn[data-category="${categoryKeys[0]}"]`);
+  if (firstCatBtn) firstCatBtn.classList.add("active");
+  
+  // Rebind listeners
+  tabsContainer.querySelectorAll(".tab-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      tabsContainer.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+      currentCategory = button.dataset.category;
+      renderCarousel();
+      startAutoplay();
+    });
+  });
+}
+
 function getRatingLabel(rating) {
-  if (rating >= 9.5) return "Fantastyczny";
-  if (rating >= 9.0) return "Wspaniały";
-  if (rating >= 8.0) return "Bardzo dobry";
-  if (rating >= 7.0) return "Dobry";
-  return "Przyzwoity";
+  const value = Number(rating);
+  if (value >= 9.0) return "Fantastyczny";
+  if (value >= 8.0) return "Bardzo dobry";
+  if (value >= 7.0) return "Dobry";
+  if (value >= 4.0) return "Przeciętny";
+  return "Zły";
 }
 
 function renderStars(stars) {
@@ -113,8 +173,21 @@ function getVisibleCards() {
   return 3;
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function renderCarousel() {
-  const offers = (allOffers[currentCategory] || []).sort((a, b) => b.rating - a.rating);
+  let offers;
+  if (currentCategory === "__all__") {
+    // Pokaż wszystkie oferty ze wszystkich kategorii
+    offers = Object.values(allOffers).flat().sort((a, b) => b.rating - a.rating);
+  } else {
+    offers = (allOffers[currentCategory] || []).sort((a, b) => b.rating - a.rating);
+  }
 
   if (!offers.length) {
     track.innerHTML = "";
@@ -124,27 +197,33 @@ function renderCarousel() {
 
   emptyBox.textContent = "";
 
-  track.innerHTML = offers.map(offer => `
+  track.innerHTML = offers.map(offer => {
+    const tags = offer.tags_list || offer.tags || [];
+    const tagsHtml = Array.isArray(tags) 
+      ? tags.map(tag => `<span>${escapeHtml(typeof tag === 'string' ? tag : tag.name || '')}</span>`).join("") 
+      : "";
+    
+    return `
     <article class="offer-card">
       <div class="offer-image" style="position: relative;">
         <button
           class="favorite-btn"
           data-offer-id="${offer.id || offer.title}"
-          data-title="${offer.title}"
-          data-location="${offer.location}"
-          data-type="${offer.type}"
+          data-title="${escapeHtml(offer.title)}"
+          data-location="${escapeHtml(offer.location)}"
+          data-type="${escapeHtml(offer.type)}"
           data-price="${offer.price}"
-          data-image="${offer.image_url}"
+          data-image="${escapeHtml(offer.image_url)}"
           data-link="pages/oferta-szczegoly.html?id=${offer.id}"
           type="button"
         >♡</button>
-        <img src="${offer.image_url}" alt="${offer.title}" onerror="this.src='https://picsum.photos/seed/fallback/600/400';" />
+        <img src="${escapeHtml(offer.image_url)}" alt="${escapeHtml(offer.title)}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop';" />
       </div>
 
       <div class="offer-card-content">
-        <span class="offer-type">${offer.type}</span>
-        <h3>${offer.title}</h3>
-        <p class="offer-location"><span class="location-icon">📍</span> ${offer.location}</p>
+        <span class="offer-type">${escapeHtml(offer.type)}</span>
+        <h3>${escapeHtml(offer.title)}</h3>
+        <p class="offer-location"><span class="location-icon">📍</span> ${escapeHtml(offer.location)}</p>
 
         <div class="offer-stars-row">
           <div class="offer-stars">
@@ -153,10 +232,10 @@ function renderCarousel() {
           <span class="offer-stars-text">${offer.stars}/5</span>
         </div>
 
-        <p class="offer-description">${offer.description}</p>
+        <p class="offer-description">${escapeHtml(offer.description)}</p>
 
         <div class="offer-tags">
-          ${offer.tags.map(tag => `<span>${tag}</span>`).join("")}
+          ${tagsHtml}
         </div>
 
         <div class="offer-bottom">
@@ -174,7 +253,7 @@ function renderCarousel() {
         </div>
       </div>
     </article>
-  `).join("");
+  `}).join("");
 
   currentSlide = 0;
   updateCarouselPosition();
@@ -188,9 +267,14 @@ function updateCarouselPosition() {
   const cards = document.querySelectorAll(".offer-card");
   if (!cards.length) return;
 
-  const offers = allOffers[currentCategory] || [];
+  let offersCount;
+  if (currentCategory === "__all__") {
+    offersCount = Object.values(allOffers).flat().length;
+  } else {
+    offersCount = (allOffers[currentCategory] || []).length;
+  }
   const visibleCards = getVisibleCards();
-  const maxSlide = Math.max(0, offers.length - visibleCards);
+  const maxSlide = Math.max(0, offersCount - visibleCards);
 
   if (currentSlide > maxSlide) {
     currentSlide = 0;
@@ -204,9 +288,14 @@ function updateCarouselPosition() {
 }
 
 function nextSlide() {
-  const offers = allOffers[currentCategory] || [];
+  let offersCount;
+  if (currentCategory === "__all__") {
+    offersCount = Object.values(allOffers).flat().length;
+  } else {
+    offersCount = (allOffers[currentCategory] || []).length;
+  }
   const visibleCards = getVisibleCards();
-  const maxSlide = Math.max(0, offers.length - visibleCards);
+  const maxSlide = Math.max(0, offersCount - visibleCards);
 
   if (currentSlide >= maxSlide) {
     currentSlide = 0;
@@ -218,9 +307,14 @@ function nextSlide() {
 }
 
 function prevSlide() {
-  const offers = allOffers[currentCategory] || [];
+  let offersCount;
+  if (currentCategory === "__all__") {
+    offersCount = Object.values(allOffers).flat().length;
+  } else {
+    offersCount = (allOffers[currentCategory] || []).length;
+  }
   const visibleCards = getVisibleCards();
-  const maxSlide = Math.max(0, offers.length - visibleCards);
+  const maxSlide = Math.max(0, offersCount - visibleCards);
 
   if (currentSlide <= 0) {
     currentSlide = maxSlide;
@@ -243,17 +337,6 @@ function stopAutoplay() {
     clearInterval(autoplayInterval);
   }
 }
-
-categoryButtons.forEach(button => {
-  button.addEventListener("click", () => {
-    categoryButtons.forEach(btn => btn.classList.remove("active"));
-    button.classList.add("active");
-
-    currentCategory = button.dataset.category;
-    renderCarousel();
-    startAutoplay();
-  });
-});
 
 if (nextBtn) {
   nextBtn.addEventListener("click", () => {

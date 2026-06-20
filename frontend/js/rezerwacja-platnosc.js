@@ -27,17 +27,17 @@ function formatGuests(value) {
   const number = Number(value);
 
   if (number === 1) return "1 osoba";
-  return `${number} osoby`;
+  if (number >= 2 && number <= 4) return `${number} osoby`;
+  return `${number} osób`;
 }
 
 function renderPaymentSummary() {
   if (!bookingData) return;
 
-  document.getElementById("payment-offer-image").src =
-    bookingData.offer_image || "https://picsum.photos/seed/rezerwacja2/600/400";
-
-  document.getElementById("payment-offer-image").alt =
-    bookingData.offer_title || "Wybrana oferta";
+  const imgEl = document.getElementById("payment-offer-image");
+  imgEl.src = bookingData.offer_image || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop";
+  imgEl.onerror = () => { imgEl.src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop"; };
+  imgEl.alt = bookingData.offer_title || "Wybrana oferta";
 
   document.getElementById("payment-offer-title").textContent =
     bookingData.offer_title || "---";
@@ -186,7 +186,7 @@ async function finishReservation() {
   const method = getSelectedPaymentMethod();
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/bookings/", {
+    const response = await fetch(`${API_BASE}/api/bookings/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -196,12 +196,22 @@ async function finishReservation() {
         offer: Number(bookingData.offer_id),
         check_in: bookingData.check_in,
         check_out: bookingData.check_out,
+        guests: Number(bookingData.guests) || 2,
+        rooms: Number(bookingData.rooms) || 1,
+        room_type: bookingData.room_key || 'standard',
         total_price: Number(bookingData.total_price)
       })
     });
 
     if (!response.ok) {
-      throw new Error("Błąd zapisu rezerwacji w bazie danych.");
+      const errorData = await response.json();
+      const messages = errorData.non_field_errors || Object.values(errorData).flat();
+      const errorMsg = messages.join('\n') || "Błąd zapisu rezerwacji w bazie danych.";
+      
+      const message = document.getElementById("payment-message");
+      message.style.color = "red";
+      message.textContent = errorMsg;
+      return;
     }
 
     const savedBooking = await response.json();
@@ -234,7 +244,9 @@ async function finishReservation() {
     }, 1200);
   } catch (error) {
     console.error("Błąd zapisu rezerwacji:", error);
-    alert("Nie udało się potwierdzić rezerwacji w bazie danych. Upewnij się, że jesteś zalogowany.");
+    const message = document.getElementById("payment-message");
+    message.style.color = "red";
+    message.textContent = "Nie udało się potwierdzić rezerwacji. Upewnij się, że jesteś zalogowany.";
   }
 }
 

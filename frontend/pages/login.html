@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="../css/login.css" />
   <link rel="icon" type="image/png" href="../images/favicon.png" />
 </head>
+
 <body>
   <!-- Global Preloader -->
   <div id="global-preloader">
@@ -17,7 +19,7 @@
 
   <header class="header">
     <div class="container navbar">
-      <h1 class="logo">BookSpace</h1>
+      <h1 class="logo"><a href="../index.html">BookSpace</a></h1>
 
       <nav class="nav">
         <a href="../index.html">Strona główna</a>
@@ -72,15 +74,17 @@
 
           <form id="mock-login-form" class="login-form">
             <div class="form-group">
-              <label for="username">Nazwa użytkownika</label>
+              <label for="username">Email</label>
               <input type="text" id="username" placeholder="Wpisz nazwę użytkownika" />
             </div>
 
-<div class="form-group">
+            <div class="form-group">
               <label for="password">Hasło</label>
               <div class="password-wrapper" style="position: relative;">
-                <input type="password" id="password" placeholder="Wpisz hasło" style="width: 100%; padding-right: 40px;" />
-                <span id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                <input type="password" id="password" placeholder="Wpisz hasło"
+                  style="width: 100%; padding-right: 40px;" />
+                <span id="togglePassword"
+                  style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
                   👁️
                 </span>
               </div>
@@ -108,7 +112,7 @@
     </section>
   </main>
 
-    <footer class="simple-footer">
+  <footer class="simple-footer">
     <div class="container">
       <div class="simple-footer-grid">
         <div>
@@ -148,6 +152,8 @@
     </div>
   </footer>
 
+  <script src="../js/config.js"></script>
   <script src="../js/auth.js"></script>
 </body>
+
 </html>
