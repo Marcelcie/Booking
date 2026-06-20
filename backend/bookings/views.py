@@ -153,12 +153,21 @@ class OfferListView(APIView):
     Opcjonalne query params: check_in, check_out (format YYYY-MM-DD)
     """
     def get(self, request):
-        offers = Offer.objects.filter(is_active=True).select_related('category').prefetch_related('tags', 'reviews')
+        offers = Offer.objects.filter(is_active=True).select_related('category').prefetch_related('tags', 'reviews', 'rooms', 'faqs')
         
         # Filtrowanie dostępności po datach
         check_in = request.query_params.get('check_in')
         check_out = request.query_params.get('check_out')
         
+        # Filtrowanie po liczbie gości
+        guests = request.query_params.get('guests')
+        if guests:
+            try:
+                guests_int = int(guests)
+                offers = offers.filter(rooms__capacity__gte=guests_int).distinct()
+            except ValueError:
+                pass
+                
         context = {'check_in': check_in, 'check_out': check_out, 'request': request}
         serializer = OfferSerializer(offers, many=True, context=context)
         return Response(serializer.data)
@@ -614,4 +623,55 @@ class OwnerBlockDeleteView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except OfferBlock.DoesNotExist:
             return Response({'error': 'Blokada nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
+
+class OwnerRoomListView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def post(self, request, offer_id):
+        try:
+            offer = Offer.objects.get(pk=offer_id, owner=request.user)
+            name = request.data.get('name', 'Pokój')
+            capacity = int(request.data.get('capacity', 2))
+            quantity = int(request.data.get('quantity', 1))
+            room = Room.objects.create(offer=offer, name=name, capacity=capacity, quantity=quantity)
+            return Response({'id': room.id, 'name': room.name, 'capacity': room.capacity, 'quantity': room.quantity}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class OwnerRoomDetailView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def delete(self, request, pk):
+        try:
+            room = Room.objects.get(pk=pk, offer__owner=request.user)
+            room.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Room.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+class OwnerFAQListView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def post(self, request, offer_id):
+        try:
+            offer = Offer.objects.get(pk=offer_id, owner=request.user)
+            question = request.data.get('question')
+            answer = request.data.get('answer')
+            if not question or not answer:
+                return Response({'error': 'Brak pytania lub odpowiedzi'}, status=status.HTTP_400_BAD_REQUEST)
+            faq = FAQ.objects.create(offer=offer, question=question, answer=answer)
+            return Response({'id': faq.id, 'question': faq.question, 'answer': faq.answer}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class OwnerFAQDetailView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    
+    def delete(self, request, pk):
+        try:
+            faq = FAQ.objects.get(pk=pk, offer__owner=request.user)
+            faq.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except FAQ.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 

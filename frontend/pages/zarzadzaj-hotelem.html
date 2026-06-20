@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Zarządzaj Obiektem - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .manage-header { margin-top: 80px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .manage-section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .manage-section h3 { margin-bottom: 15px; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+    .field-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .field-row:last-child { border-bottom: none; }
+    .field-label { font-weight: 600; color: #475569; width: 150px; }
+    .field-value { flex: 1; color: #1e293b; margin: 0 15px; }
+    .edit-icon { cursor: pointer; color: #3b82f6; font-size: 18px; padding: 5px; }
+    .edit-icon:hover { color: #2563eb; }
+    .inline-edit-input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .action-btns { display: flex; gap: 10px; }
+    .room-card, .faq-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+  <div id="navbar-container"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <main class="container" style="max-width: 900px; padding-bottom: 50px;">
+    <div class="manage-header">
+      <a href="moj-hotel.html" style="color: #64748b; text-decoration: none; font-size: 14px;">&larr; Wróć do listy obiektów</a>
+      <h2 id="manage-title" style="margin-top: 10px;">Zarządzaj: Ładowanie...</h2>
+    </div>
+
+    <!-- Dane podstawowe -->
+    <section class="manage-section">
+      <h3>Dane podstawowe</h3>
+      <div id="basic-data-container">Ładowanie...</div>
+    </section>
+
+    <!-- Zarządzanie pokojami -->
+    <section class="manage-section">
+      <h3>Pokoje i pojemność</h3>
+      <div id="rooms-list"></div>
+      <form id="add-room-form" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1; display:flex; gap:10px; align-items:flex-end;">
+        <div class="form-group" style="margin:0; flex:2;">
+          <label>Nazwa pokoju</label>
+          <input type="text" id="new-room-name" placeholder="np. Pokój 2-osobowy Standard" required>
+        </div>
+        <div class="form-group" style="margin:0; flex:1;">
+          <label>Pojemność (os.)</label>
+          <input type="number" id="new-room-capacity" min="1" required>
+        </div>
+        <div class="form-group" style="margin:0; flex:1;">
+          <label>Ilość pokoi</label>
+          <input type="number" id="new-room-quantity" min="1" required>
+        </div>
+        <button type="submit" class="btn-primary" style="height:42px;">Dodaj pokój</button>
+      </form>
+    </section>
+
+    <!-- Zarządzanie FAQ -->
+    <section class="manage-section">
+      <h3>Często zadawane pytania (FAQ)</h3>
+      <div id="faqs-list"></div>
+      <form id="add-faq-form" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
+        <div class="form-group">
+          <label>Pytanie</label>
+          <input type="text" id="new-faq-question" required>
+        </div>
+        <div class="form-group">
+          <label>Odpowiedź</label>
+          <textarea id="new-faq-answer" rows="2" required></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Dodaj FAQ</button>
+      </form>
+    </section>
+
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/zarzadzaj-hotelem.js"></script>
+</body>
+</html>

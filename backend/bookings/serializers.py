@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import Offer, Category, Tag, ContactMessage, Booking, Review, Notification
+from .models import Offer, Category, Tag, ContactMessage, Booking, Review, Notification, Room, FAQ
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     topic = serializers.CharField(source='subject', required=True)
@@ -14,6 +14,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'author_name', 'rating', 'body', 'created_at']
 
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ['id', 'name', 'capacity', 'quantity']
+
+class FAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FAQ
+        fields = ['id', 'question', 'answer']
+
 class OfferSerializer(serializers.ModelSerializer):
     tags_list = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='name', source='tags'
@@ -22,6 +32,8 @@ class OfferSerializer(serializers.ModelSerializer):
         read_only=True, slug_field='name', source='category'
     )
     reviews = ReviewSerializer(many=True, read_only=True)
+    rooms = RoomSerializer(many=True, read_only=True)
+    faqs = FAQSerializer(many=True, read_only=True)
     is_available = serializers.SerializerMethodField()
 
     class Meta:

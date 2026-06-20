@@ -64,8 +64,8 @@ function renderOwnerOffers(offers) {
       </div>
       <div class="owner-offer-actions" style="display:flex; flex-direction:column; gap:6px;">
         <div style="display:flex; gap:6px;">
-          <button class="btn-secondary" onclick='editOffer(${JSON.stringify(offer).replace(/'/g, "&#39;")})'>Edytuj</button>
-          <button class="btn-danger" onclick="deleteOffer(${offer.id})">Usuń</button>
+          <a href="zarzadzaj-hotelem.html?id=${offer.id}" class="btn-secondary" style="text-decoration:none; text-align:center; flex:1; line-height:22px;">Zarządzaj</a>
+          <button class="btn-danger" style="flex:1;" onclick="deleteOffer(${offer.id})">Usuń</button>
         </div>
         <div style="display:flex; gap:6px;">
           <button class="btn-secondary" style="font-size:12px; padding:6px 10px; background:${offer.is_active ? '#e0f2fe' : '#fef08a'}; color:${offer.is_active ? '#0369a1' : '#854d0e'}; border:none;" onclick="toggleOfferActive(${offer.id})">
@@ -254,9 +254,14 @@ document.getElementById("offer-form").addEventListener("submit", async (e) => {
     const res    = await fetchWithAuth(url, { method, body: formData });
 
     if (res && res.ok) {
-      showToast(currentEditOfferId ? "Oferta zaktualizowana!" : "Oferta dodana pomyślnie!", "success");
+      const savedOffer = await res.json();
+      showToast(currentEditOfferId ? "Oferta zaktualizowana!" : "Oferta dodana pomyślnie! Przekierowanie do zarządzania...", "success");
       closeOfferModal();
-      await loadOwnerData();
+      if (!currentEditOfferId) {
+        setTimeout(() => { window.location.href = `zarzadzaj-hotelem.html?id=${savedOffer.id}`; }, 1000);
+      } else {
+        await loadOwnerData();
+      }
     } else {
       const err = res ? await res.json() : null;
       showToast(err?.error || "Błąd podczas zapisywania.", "error");

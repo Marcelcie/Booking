@@ -38,7 +38,10 @@ let allFetchedOffers = [];
 // --- Dynamiczne ładowanie ofert z bazy danych ---
 async function loadOfertyData() {
   try {
-    const response = await fetch(`${API_BASE}/api/offers/`);
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryString = urlParams.toString();
+    const fetchUrl = queryString ? `${API_BASE}/api/offers/?${queryString}` : `${API_BASE}/api/offers/`;
+    const response = await fetch(fetchUrl);
     if (!response.ok) throw new Error('Błąd sieci');
     allFetchedOffers = await response.json();
     applyFilters();
@@ -143,10 +146,11 @@ function applyFilters() {
   }
 
   renderOffers(filtered);
-  updateActiveFilters(locFilter, priceFilter, typeFilter, tagFilter);
+  const guestsParam = urlParams.get('guests');
+  updateActiveFilters(locFilter, priceFilter, typeFilter, tagFilter, guestsParam);
 }
 
-function updateActiveFilters(loc, price, type, tag) {
+function updateActiveFilters(loc, price, type, tag, guests) {
   const container = document.querySelector(".active-filters");
   if (!container) return;
   
@@ -162,6 +166,9 @@ function updateActiveFilters(loc, price, type, tag) {
   }
   if (tag) {
     container.innerHTML += `<span class="active-filter-tag">${tag} <a href="oferty.html" style="color: #ffffff; margin-left: 6px; font-weight: bold; text-decoration: none;">&times;</a></span>`;
+  }
+  if (guests) {
+    container.innerHTML += `<span class="active-filter-tag">Goście: ${guests}</span>`;
   }
 }
 

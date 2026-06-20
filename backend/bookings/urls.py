@@ -24,6 +24,10 @@ from .views import (
     OwnerOfferToggleActiveView,
     OwnerOfferBlockListView,
     OwnerBlockDeleteView,
+    OwnerRoomListView,
+    OwnerRoomDetailView,
+    OwnerFAQListView,
+    OwnerFAQDetailView,
 )
 
 urlpatterns = [
@@ -48,6 +52,10 @@ urlpatterns = [
     path('owner/offers/<int:pk>/toggle-active/', OwnerOfferToggleActiveView.as_view(), name='owner-offers-toggle-active'),
     path('owner/offers/<int:offer_id>/blocks/', OwnerOfferBlockListView.as_view(), name='owner-offers-blocks-list'),
     path('owner/blocks/<int:pk>/', OwnerBlockDeleteView.as_view(), name='owner-blocks-delete'),
+    path('owner/offers/<int:offer_id>/rooms/', OwnerRoomListView.as_view(), name='owner-offers-rooms-list'),
+    path('owner/rooms/<int:pk>/', OwnerRoomDetailView.as_view(), name='owner-rooms-delete'),
+    path('owner/offers/<int:offer_id>/faqs/', OwnerFAQListView.as_view(), name='owner-offers-faqs-list'),
+    path('owner/faqs/<int:pk>/', OwnerFAQDetailView.as_view(), name='owner-faqs-delete'),
     path('owner/stats/', OwnerStatsView.as_view(), name='owner-stats'),
     # Notifications
     path('notifications/', NotificationListView.as_view(), name='notifications-list'),

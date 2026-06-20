@@ -115,7 +115,7 @@
               </div>
             </div>
 
-            <button type="button" class="btn btn-full" onclick="const loc=document.getElementById('location').value; const ci=document.getElementById('checkin').value; const co=document.getElementById('checkout').value; let params=[]; if(loc) params.push('location='+encodeURIComponent(loc)); if(ci) params.push('check_in='+ci); if(co) params.push('check_out='+co); window.location.href='pages/oferty.html' + (params.length ? '?'+params.join('&') : '');">
+            <button type="button" class="btn btn-full" onclick="const loc=document.getElementById('location').value; const ci=document.getElementById('checkin').value; const co=document.getElementById('checkout').value; const guests=parseInt(document.getElementById('adults-count').textContent)+parseInt(document.getElementById('children-count').textContent); let params=[]; if(loc) params.push('location='+encodeURIComponent(loc)); if(ci) params.push('check_in='+ci); if(co) params.push('check_out='+co); if(guests) params.push('guests='+guests); window.location.href='pages/oferty.html' + (params.length ? '?'+params.join('&') : '');">
               Szukaj
             </button>
           </form>

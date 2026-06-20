@@ -164,3 +164,28 @@ class OfferBlock(models.Model):
 
     def __str__(self):
         return f"Blokada {self.offer.title}: {self.start_date} do {self.end_date}"
+
+class Room(models.Model):
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='rooms')
+    name = models.CharField(max_length=100, default="Pokój")
+    capacity = models.PositiveIntegerField(verbose_name="Ilość osób")
+    quantity = models.PositiveIntegerField(verbose_name="Ilość takich pokoi", default=1)
+
+    class Meta:
+        verbose_name = "Pokój"
+        verbose_name_plural = "Pokoje"
+
+    def __str__(self):
+        return f"{self.name} ({self.capacity}-os.) - {self.offer.title}"
+
+class FAQ(models.Model):
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='faqs')
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    class Meta:
+        verbose_name = "FAQ"
+        verbose_name_plural = "FAQ"
+
+    def __str__(self):
+        return f"FAQ: {self.question} ({self.offer.title})"
