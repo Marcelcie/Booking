@@ -84,7 +84,7 @@ function applyFilters() {
   let priceFilter = null;
   if (priceInput) {
     priceFilter = parseInt(priceInput.value, 10);
-    filtered = filtered.filter(offer => offer.price <= priceFilter);
+    filtered = filtered.filter(offer => (offer.min_price ?? offer.price ?? Infinity) <= priceFilter);
   }
 
   // 3. Typ obiektu (z pill filtrów lub z URL)
@@ -135,9 +135,9 @@ function applyFilters() {
   if (sortSelect) {
     const sortVal = sortSelect.value;
     if (sortVal === "Najtańsze") {
-      filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => (a.min_price ?? a.price ?? 0) - (b.min_price ?? b.price ?? 0));
     } else if (sortVal === "Najdroższe") {
-      filtered.sort((a, b) => b.price - a.price);
+      filtered.sort((a, b) => (b.min_price ?? b.price ?? 0) - (a.min_price ?? a.price ?? 0));
     } else if (sortVal === "Najwyżej oceniane") {
       filtered.sort((a, b) => b.rating - a.rating);
     } else if (sortVal === "Najpopularniejsze") {
@@ -224,7 +224,7 @@ function renderOffers(offers) {
 
           <div class="offer-price-box">
             <p>Od</p>
-            <strong>${offer.price} zł</strong>
+            <strong>${offer.min_price != null ? offer.min_price : (offer.price ?? '—')} zł</strong>
             <a href="oferta-szczegoly.html?id=${offer.id}" class="offer-btn">Zobacz ofertę</a>
           </div>
         </div>

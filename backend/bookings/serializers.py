@@ -35,11 +35,21 @@ class OfferSerializer(serializers.ModelSerializer):
     rooms = RoomSerializer(many=True, read_only=True)
     faqs = FAQSerializer(many=True, read_only=True)
     is_available = serializers.SerializerMethodField()
+    min_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
         fields = '__all__'
     
+    def get_min_price(self, obj):
+        """Zwraca minimalną cenę pokoju lub cenę bazową oferty jako fallback."""
+        rooms = obj.rooms.all()
+        if rooms.exists():
+            prices = [r.price for r in rooms if r.price is not None]
+            if prices:
+                return float(min(prices))
+        return float(obj.price) if obj.price else None
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         if instance.image:

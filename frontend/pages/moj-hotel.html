@@ -165,7 +165,7 @@
 
   <!-- MODAL Dodawania/Edycji Oferty -->
   <div id="offer-modal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
       <h3 id="modal-title">Dodaj nowy obiekt</h3>
       <form id="offer-form" novalidate>
         <div class="form-group">
@@ -190,10 +190,6 @@
         <div class="form-group">
           <label for="offer-category">Kategoria *</label>
           <input type="text" id="offer-category" placeholder="np. Luksusowy hotel" />
-        </div>
-        <div class="form-group">
-          <label for="offer-price">Cena za noc (PLN) *</label>
-          <input type="number" id="offer-price" min="1" step="1" placeholder="np. 299" />
         </div>
         <div class="form-group">
           <label for="offer-stars">Gwiazdki (1–5) *</label>
@@ -225,6 +221,33 @@
           <label for="offer-description">Opis obiektu</label>
           <textarea id="offer-description" rows="4" placeholder="Opisz swój obiekt..."></textarea>
         </div>
+
+        <!-- SEKCJA POKOI — tylko przy dodawaniu -->
+        <div id="rooms-section" style="margin-top: 20px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
+          <h4 style="color: #1e293b; margin-bottom: 5px; font-size: 15px;">🛏️ Pokoje w obiekcie *</h4>
+          <p class="form-hint" style="margin-bottom: 14px;">Zdefiniuj typy pokoi, ich pojemność i cenę. Cena minimalna będzie wyświetlana gościom.</p>
+          <div id="modal-rooms-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;"></div>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 8px; align-items: flex-end;">
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: #64748b;">Nazwa pokoju</label>
+              <input type="text" id="modal-new-room-name" placeholder="np. Pokój 2-os. Standard" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: #64748b;">Pojemność</label>
+              <input type="number" id="modal-new-room-capacity" min="1" placeholder="2" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: #64748b;">Ilość</label>
+              <input type="number" id="modal-new-room-quantity" min="1" placeholder="1" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: #64748b;">Cena (zł/noc)</label>
+              <input type="number" id="modal-new-room-price" min="0" step="0.01" placeholder="150" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; font-size: 13px;">
+            </div>
+            <button type="button" onclick="addRoomToModal()" style="background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 13px; height: 36px;">+ Dodaj</button>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button type="button" class="btn-secondary" onclick="closeOfferModal()">Anuluj</button>
           <button type="submit" class="btn-primary">Zapisz</button>

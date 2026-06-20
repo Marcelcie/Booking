@@ -34,7 +34,7 @@ class Offer(models.Model):
     type = models.CharField(max_length=100)
     location = models.CharField(max_length=255)
     description = models.TextField()
-    price = models.IntegerField()
+    price = models.IntegerField(null=True, blank=True, verbose_name="Cena bazowa (legacy)")
     rating = models.FloatField()
     stars = models.IntegerField()
     reviews_count = models.IntegerField(default=0)

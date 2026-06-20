@@ -3,6 +3,43 @@
 
 let currentEditOfferId = null;
 let ownerOffers = []; // cache ofert właściciela dla filtra
+let modalRooms = []; // pokoje definiowane w modalu przy tworzeniu
+
+// ===== POKOJE W MODALU =====
+function addRoomToModal() {
+  const name = document.getElementById('modal-new-room-name').value.trim();
+  const capacity = parseInt(document.getElementById('modal-new-room-capacity').value);
+  const quantity = parseInt(document.getElementById('modal-new-room-quantity').value);
+  const price = parseFloat(document.getElementById('modal-new-room-price').value);
+
+  if (!name) { showToast('Podaj nazwę pokoju.', 'error'); return; }
+  if (!capacity || capacity < 1) { showToast('Podaj pojemność pokoju.', 'error'); return; }
+  if (!quantity || quantity < 1) { showToast('Podaj ilość pokoi.', 'error'); return; }
+  if (!price || price <= 0) { showToast('Podaj cenę pokoju.', 'error'); return; }
+
+  modalRooms.push({ name, capacity, quantity, price });
+  renderModalRooms();
+  document.getElementById('modal-new-room-name').value = '';
+  document.getElementById('modal-new-room-capacity').value = '';
+  document.getElementById('modal-new-room-quantity').value = '';
+  document.getElementById('modal-new-room-price').value = '';
+}
+
+function renderModalRooms() {
+  const list = document.getElementById('modal-rooms-list');
+  if (!list) return;
+  list.innerHTML = modalRooms.map((r, i) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; padding:8px 12px; border-radius:8px; font-size:13px;">
+      <span><strong>${escapeHTML(r.name)}</strong> | 👥 ${r.capacity} os. | 🔑 ${r.quantity} pok. | 💰 ${r.price} zł/noc</span>
+      <button type="button" onclick="removeModalRoom(${i})" style="background:#fee2e2; color:#dc2626; border:none; border-radius:4px; padding:2px 8px; cursor:pointer;">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeModalRoom(index) {
+  modalRooms.splice(index, 1);
+  renderModalRooms();
+}
 
 // ===== INICJALIZACJA =====
 async function loadOwnerData() {
@@ -57,7 +94,7 @@ function renderOwnerOffers(offers) {
       <img src="${escapeHTML(offer.image_url)}" alt="${escapeHTML(offer.title)}" onerror="this.src='../images/favicon.png'">
       <div class="owner-offer-details">
         <h4 style="margin-bottom:5px; color:#1d3557;">${escapeHTML(offer.title)}</h4>
-        <p style="margin:2px 0; color:#4b5563; font-size:14px;">📍 ${escapeHTML(offer.location)} | 💰 ${escapeHTML(String(offer.price))} PLN / noc</p>
+        <p style="margin:2px 0; color:#4b5563; font-size:14px;">📍 ${escapeHTML(offer.location)} | 💰 od ${offer.min_price != null ? offer.min_price : (offer.price || '—')} PLN / noc</p>
         <span class="offer-type-badge">${escapeHTML(offer.type)}</span>
         ${!offer.is_active ? `<span class="offer-type-badge" style="background:#fee2e2;color:#dc2626;font-weight:bold;">Niewidoczny</span>` : ''}
         ${offer.tags_list && offer.tags_list.length ? `<div style="margin-top:5px;">${offer.tags_list.map(t => `<span class="offer-type-badge" style="background:#f0fdf4;color:#16a34a;">${escapeHTML(t)}</span>`).join(' ')}</div>` : ''}
@@ -158,11 +195,15 @@ async function loadOwnerBookings(page = 1) {
 // ===== MODAL OFERTY =====
 function openOfferModal() {
   currentEditOfferId = null;
+  modalRooms = [];
   document.getElementById("offer-form").reset();
   const fileInput = document.getElementById("offer-image-file");
   if (fileInput) fileInput.value = "";
   const activeInput = document.getElementById("offer-is-active");
   if (activeInput) activeInput.value = "true";
+  const roomsSection = document.getElementById("rooms-section");
+  if (roomsSection) roomsSection.style.display = 'block';
+  renderModalRooms();
   document.getElementById("modal-title").textContent = "Dodaj nowy obiekt";
   document.getElementById("offer-modal").style.display = "flex";
 }
@@ -182,7 +223,7 @@ function editOffer(offer) {
   document.getElementById("offer-location").value    = offer.location || '';
   document.getElementById("offer-type").value        = offer.type || 'hotel';
   document.getElementById("offer-category").value    = offer.category_name || '';
-  document.getElementById("offer-price").value       = offer.price || '';
+  // price is now defined by rooms — no price input in modal
   document.getElementById("offer-stars").value       = offer.stars || 3;
   document.getElementById("offer-image").value       = offer.image_url || '';
   const fileInput = document.getElementById("offer-image-file");
@@ -200,16 +241,18 @@ function validateOfferForm() {
   const title    = document.getElementById("offer-title").value.trim();
   const location = document.getElementById("offer-location").value.trim();
   const category = document.getElementById("offer-category").value.trim();
-  const price    = Number(document.getElementById("offer-price").value);
   const stars    = Number(document.getElementById("offer-stars").value);
   const imageUrl = document.getElementById("offer-image").value.trim();
 
-  if (!title)      { showToast("Podaj nazwę obiektu.", "error"); return false; }
-  if (!location)   { showToast("Podaj lokalizację.", "error"); return false; }
-  if (!category)   { showToast("Podaj kategorię.", "error"); return false; }
-  if (!price || price <= 0) { showToast("Cena musi być większa od zera.", "error"); return false; }
+  if (!title)    { showToast("Podaj nazwę obiektu.", "error"); return false; }
+  if (!location) { showToast("Podaj lokalizację.", "error"); return false; }
+  if (!category) { showToast("Podaj kategorię.", "error"); return false; }
   if (stars < 1 || stars > 5) { showToast("Gwiazdki muszą być w zakresie 1–5.", "error"); return false; }
   if (imageUrl && !/^https?:\/\/.+/.test(imageUrl)) { showToast("Link do zdjęcia musi zaczynać się od http:// lub https://", "error"); return false; }
+  // Przy nowym hotelu wymagaj co najmniej jednego pokoju
+  if (!currentEditOfferId && modalRooms.length === 0) {
+    showToast("Dodaj co najmniej jeden typ pokoju.", "error"); return false;
+  }
   return true;
 }
 
@@ -226,7 +269,6 @@ document.getElementById("offer-form").addEventListener("submit", async (e) => {
   formData.append("location", document.getElementById("offer-location").value.trim());
   formData.append("type", document.getElementById("offer-type").value);
   formData.append("category", document.getElementById("offer-category").value.trim());
-  formData.append("price", Number(document.getElementById("offer-price").value));
   formData.append("stars", Number(document.getElementById("offer-stars").value));
   formData.append("description", document.getElementById("offer-description").value.trim());
   formData.append("image_url", document.getElementById("offer-image").value.trim());
@@ -255,6 +297,15 @@ document.getElementById("offer-form").addEventListener("submit", async (e) => {
 
     if (res && res.ok) {
       const savedOffer = await res.json();
+      // Jeśli to nowy hotel, zapisz pokoje zdefiniowane w modalu
+      if (!currentEditOfferId && modalRooms.length > 0) {
+        await Promise.all(modalRooms.map(room =>
+          fetchWithAuth(`${API_BASE}/api/owner/offers/${savedOffer.id}/rooms/`, {
+            method: 'POST',
+            body: JSON.stringify(room)
+          })
+        ));
+      }
       showToast(currentEditOfferId ? "Oferta zaktualizowana!" : "Oferta dodana pomyślnie! Przekierowanie do zarządzania...", "success");
       closeOfferModal();
       if (!currentEditOfferId) {

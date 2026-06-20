@@ -364,7 +364,7 @@ class OwnerOfferListView(APIView):
                 type=data.get('type', 'hotel'),
                 location=data.get('location', 'Polska'),
                 description=data.get('description', ''),
-                price=data.get('price', 100),
+                price=data.get('price') or None,
                 rating=0.0,
                 stars=data.get('stars', 3),
                 image_url=data.get('image_url', ''),
