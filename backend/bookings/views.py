@@ -142,7 +142,7 @@ class FavoriteListView(APIView):
     def get(self, request):
         favorites = Favorite.objects.filter(user=request.user).select_related('offer', 'offer__category').prefetch_related('offer__tags', 'offer__reviews')
         offers = [fav.offer for fav in favorites]
-        serializer = OfferSerializer(offers, many=True)
+        serializer = OfferSerializer(offers, many=True, context={'request': request})
         return Response(serializer.data)
 
 # --- OFERTY I RANKINGI ---
@@ -153,13 +153,13 @@ class OfferListView(APIView):
     Opcjonalne query params: check_in, check_out (format YYYY-MM-DD)
     """
     def get(self, request):
-        offers = Offer.objects.select_related('category').prefetch_related('tags', 'reviews').all()
+        offers = Offer.objects.filter(is_active=True).select_related('category').prefetch_related('tags', 'reviews')
         
         # Filtrowanie dostępności po datach
         check_in = request.query_params.get('check_in')
         check_out = request.query_params.get('check_out')
         
-        context = {'check_in': check_in, 'check_out': check_out}
+        context = {'check_in': check_in, 'check_out': check_out, 'request': request}
         serializer = OfferSerializer(offers, many=True, context=context)
         return Response(serializer.data)
 
@@ -169,8 +169,8 @@ class OfferDetailView(APIView):
     """
     def get(self, request, pk):
         try:
-            offer = Offer.objects.select_related('category').prefetch_related('tags', 'reviews').get(pk=pk)
-            serializer = OfferSerializer(offer)
+            offer = Offer.objects.select_related('category').prefetch_related('tags', 'reviews').get(pk=pk, is_active=True)
+            serializer = OfferSerializer(offer, context={'request': request})
             return Response(serializer.data)
         except Offer.DoesNotExist:
             return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
@@ -183,12 +183,12 @@ class OfferGroupedView(APIView):
         categories = Category.objects.prefetch_related(
             Prefetch(
                 'offers',
-                queryset=Offer.objects.select_related('category').prefetch_related('tags', 'reviews')
+                queryset=Offer.objects.filter(is_active=True).select_related('category').prefetch_related('tags', 'reviews')
             )
         ).all()
         data = {}
         for cat in categories:
-            data[cat.name] = OfferSerializer(cat.offers.all(), many=True).data
+            data[cat.name] = OfferSerializer(cat.offers.all(), many=True, context={'request': request}).data
         return Response(data)
 
 class OfferAvailabilityView(APIView):
@@ -228,12 +228,12 @@ class RankingGroupedView(APIView):
     Zwraca dynamiczne rankingi (top oceniane, najtańsze itp.).
     """
     def get(self, request):
-        base_qs = Offer.objects.select_related('category').prefetch_related('tags', 'reviews')
+        base_qs = Offer.objects.filter(is_active=True).select_related('category').prefetch_related('tags', 'reviews')
         data = {
-            'topRated': OfferSerializer(base_qs.order_by('-rating')[:5], many=True).data,
-            'popular': OfferSerializer(base_qs.order_by('-reviews_count')[:5], many=True).data,
-            'cheapest': OfferSerializer(base_qs.order_by('price')[:5], many=True).data,
-            'premium': OfferSerializer(base_qs.filter(stars=5).order_by('-rating')[:5], many=True).data
+            'topRated': OfferSerializer(base_qs.order_by('-rating')[:5], many=True, context={'request': request}).data,
+            'popular': OfferSerializer(base_qs.order_by('-reviews_count')[:5], many=True, context={'request': request}).data,
+            'cheapest': OfferSerializer(base_qs.order_by('price')[:5], many=True, context={'request': request}).data,
+            'premium': OfferSerializer(base_qs.filter(stars=5).order_by('-rating')[:5], many=True, context={'request': request}).data
         }
         return Response(data)
 
@@ -320,7 +320,7 @@ class OwnerOfferListView(APIView):
     
     def get(self, request):
         offers = Offer.objects.filter(owner=request.user).select_related('category').prefetch_related('tags', 'reviews')
-        serializer = OfferSerializer(offers, many=True)
+        serializer = OfferSerializer(offers, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request):
@@ -342,7 +342,8 @@ class OwnerOfferListView(APIView):
                 rating=0.0,
                 stars=data.get('stars', 3),
                 image_url=data.get('image_url', ''),
-                image=image_file
+                image=image_file,
+                is_active=str(data.get('is_active', 'true')).lower() == 'true'
             )
             
             # Obsługa tagów
@@ -366,7 +367,7 @@ class OwnerOfferListView(APIView):
                         tag, _ = Tag.objects.get_or_create(name=str(tag_name).lower().strip())
                         offer.tags.add(tag)
                         
-            return Response(OfferSerializer(offer).data, status=status.HTTP_201_CREATED)
+            return Response(OfferSerializer(offer, context={'request': request}).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -389,6 +390,9 @@ class OwnerOfferDetailView(APIView):
             
             if 'image' in request.FILES:
                 offer.image = request.FILES['image']
+            
+            if 'is_active' in data:
+                offer.is_active = str(data['is_active']).lower() == 'true'
             
             if 'category' in data:
                 cat, _ = Category.objects.get_or_create(display_name=data['category'], defaults={'name': data['category'].lower()})
@@ -417,7 +421,7 @@ class OwnerOfferDetailView(APIView):
                         tag, _ = Tag.objects.get_or_create(name=str(tag_name).lower().strip())
                         offer.tags.add(tag)
                         
-            return Response(OfferSerializer(offer).data)
+            return Response(OfferSerializer(offer, context={'request': request}).data)
         except Offer.DoesNotExist:
             return Response({'error': 'Oferta nie istnieje'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:

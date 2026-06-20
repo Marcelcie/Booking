@@ -22,11 +22,11 @@
     .btn-secondary { background: #f1f5f9; color: #1d3557; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; font-size: 14px; transition: background .2s; }
     .btn-secondary:hover { background: #e2e8f0; }
 
-    .offer-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); display: flex; gap: 16px; align-items: center; margin-bottom: 14px; transition: box-shadow .2s; }
-    .offer-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-    .offer-card img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-    .offer-details { flex: 1; min-width: 0; }
-    .offer-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .owner-offer-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); display: flex; flex-direction: row; gap: 16px; align-items: center; margin-bottom: 14px; transition: box-shadow .2s; text-align: left; }
+    .owner-offer-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .owner-offer-card img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+    .owner-offer-details { flex: 1; min-width: 0; text-align: left; }
+    .owner-offer-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
     .booking-card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
     .booking-info h4 { margin-bottom: 6px; color: #1d3557; font-size: 15px; }
@@ -212,6 +212,14 @@
           <label for="offer-tags">Tagi (oddzielone przecinkiem)</label>
           <input type="text" id="offer-tags" placeholder="np. parking, spa, basen, śniadanie" />
           <p class="form-hint">Tagi pomagają gościom w wyszukiwaniu.</p>
+        </div>
+        <div class="form-group">
+          <label for="offer-is-active">Widoczność w portalu</label>
+          <select id="offer-is-active">
+            <option value="true">Zawsze widoczny (Aktywny)</option>
+            <option value="false">Ukryty (Niedostępny)</option>
+          </select>
+          <p class="form-hint">Ukrycie obiektu sprawi, że zniknie on z wyników wyszukiwania i rezerwacji.</p>
         </div>
         <div class="form-group">
           <label for="offer-description">Opis obiektu</label>

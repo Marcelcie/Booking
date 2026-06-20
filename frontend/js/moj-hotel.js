@@ -53,15 +53,16 @@ function renderOwnerOffers(offers) {
     return;
   }
   list.innerHTML = offers.map(offer => `
-    <div class="offer-card">
+    <div class="owner-offer-card" style="${!offer.is_active ? 'opacity:0.75;' : ''}">
       <img src="${escapeHTML(offer.image_url)}" alt="${escapeHTML(offer.title)}" onerror="this.src='../images/favicon.png'">
-      <div class="offer-details">
+      <div class="owner-offer-details">
         <h4 style="margin-bottom:5px; color:#1d3557;">${escapeHTML(offer.title)}</h4>
         <p style="margin:2px 0; color:#4b5563; font-size:14px;">📍 ${escapeHTML(offer.location)} | 💰 ${escapeHTML(String(offer.price))} PLN / noc</p>
         <span class="offer-type-badge">${escapeHTML(offer.type)}</span>
+        ${!offer.is_active ? `<span class="offer-type-badge" style="background:#fee2e2;color:#dc2626;font-weight:bold;">Niedostępny</span>` : ''}
         ${offer.tags_list && offer.tags_list.length ? `<div style="margin-top:5px;">${offer.tags_list.map(t => `<span class="offer-type-badge" style="background:#f0fdf4;color:#16a34a;">${escapeHTML(t)}</span>`).join(' ')}</div>` : ''}
       </div>
-      <div class="offer-actions">
+      <div class="owner-offer-actions">
         <button class="btn-secondary" onclick='editOffer(${JSON.stringify(offer).replace(/'/g, "&#39;")})'>Edytuj</button>
         <button class="btn-danger" onclick="deleteOffer(${offer.id})">Usuń</button>
       </div>
@@ -150,6 +151,8 @@ function openOfferModal() {
   document.getElementById("offer-form").reset();
   const fileInput = document.getElementById("offer-image-file");
   if (fileInput) fileInput.value = "";
+  const activeInput = document.getElementById("offer-is-active");
+  if (activeInput) activeInput.value = "true";
   document.getElementById("modal-title").textContent = "Dodaj nowy obiekt";
   document.getElementById("offer-modal").style.display = "flex";
 }
@@ -174,6 +177,8 @@ function editOffer(offer) {
   document.getElementById("offer-image").value       = offer.image_url || '';
   const fileInput = document.getElementById("offer-image-file");
   if (fileInput) fileInput.value = "";
+  const activeInput = document.getElementById("offer-is-active");
+  if (activeInput) activeInput.value = offer.is_active === false ? "false" : "true";
   document.getElementById("offer-description").value = offer.description || '';
   document.getElementById("offer-tags").value        = (offer.tags_list || []).join(', ');
   document.getElementById("modal-title").textContent = "Edytuj obiekt";
@@ -215,6 +220,11 @@ document.getElementById("offer-form").addEventListener("submit", async (e) => {
   formData.append("stars", Number(document.getElementById("offer-stars").value));
   formData.append("description", document.getElementById("offer-description").value.trim());
   formData.append("image_url", document.getElementById("offer-image").value.trim());
+  
+  const activeInput = document.getElementById("offer-is-active");
+  if (activeInput) {
+    formData.append("is_active", activeInput.value === "true");
+  }
   
   // Przekazanie tagów jako stringified JSON
   formData.append("tags", JSON.stringify(tagsArr));

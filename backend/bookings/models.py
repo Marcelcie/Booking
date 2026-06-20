@@ -41,6 +41,7 @@ class Offer(models.Model):
     image_url = models.URLField(max_length=1000, blank=True, null=True)
     image = models.ImageField(upload_to='offers/', null=True, blank=True, verbose_name="Zdjęcie")
     tags = models.ManyToManyField(Tag, related_name='offers')
+    is_active = models.BooleanField(default=True, verbose_name="Aktywna")
     
     class Meta:
         verbose_name = "Oferta"
