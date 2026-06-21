@@ -92,8 +92,32 @@ function renderRoomOptions() {
       if (this.checked) {
         this.closest(".room-option").classList.add("active-option");
       }
+      updateRoomSelectOptions();
     });
   });
+  
+  updateRoomSelectOptions();
+}
+
+function updateRoomSelectOptions() {
+  const selectedRoom = getSelectedRoom();
+  const roomsSelect = document.getElementById("rooms");
+  if (!selectedRoom || !roomsSelect) return;
+  
+  const currentVal = parseInt(roomsSelect.value, 10) || 1;
+  roomsSelect.innerHTML = "";
+  
+  for (let i = 1; i <= selectedRoom.quantity; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = formatRooms(i);
+    if (i === currentVal) opt.selected = true;
+    roomsSelect.appendChild(opt);
+  }
+  
+  if (currentVal > selectedRoom.quantity) {
+    roomsSelect.value = selectedRoom.quantity;
+  }
 }
 
 function escapeHTML(str) {
@@ -190,6 +214,11 @@ async function goNext() {
     return;
   }
 
+  if (Number(rooms) > selectedRoom.quantity) {
+    alert("Wybrano więcej pokoi niż jest dostępnych w tym wariancie.");
+    return;
+  }
+
   if (!checkin || !checkout) {
     alert("Wybierz datę zameldowania i wymeldowania.");
     return;
@@ -255,16 +284,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("guests").addEventListener("change", updateSummary);
   document.getElementById("rooms").addEventListener("change", updateSummary);
 
-  document.querySelectorAll('input[name="roomType"]').forEach(input => {
-    input.addEventListener("change", () => {
-      document.querySelectorAll(".room-option").forEach(option => {
-        option.classList.remove("active-option");
-      });
-
-      input.closest(".room-option").classList.add("active-option");
-      updateSummary();
-    });
-  });
-
+  // Note: roomType listeners are attached dynamically in renderRoomOptions
   loadOffer();
 });
