@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Sum, Count
-from .models import Offer, Category, Tag, Booking, Favorite, UserProfile, Notification, OfferBlock
+from .models import Offer, Category, Tag, Booking, Favorite, UserProfile, Notification, OfferBlock, Room, FAQ
 from .serializers import (
     OfferSerializer, 
     RegisterSerializer, 
