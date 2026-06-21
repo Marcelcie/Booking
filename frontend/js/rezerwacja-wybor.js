@@ -2,12 +2,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const offerId = urlParams.get("id");
 
 let currentOffer = null;
-
-const roomPrices = {
-  standard: 0,
-  deluxe: 0,
-  premium: 0
-};
+let offerRooms = [];
 
 if (!offerId) {
   alert("Brak ID oferty. Wróć do listy ofert i wybierz ofertę ponownie.");
@@ -24,15 +19,8 @@ async function loadOffer() {
 
     currentOffer = await response.json();
 
-    const basePrice = Number(currentOffer.price) || 0;
-
-    roomPrices.standard = basePrice;
-    roomPrices.deluxe = basePrice + 100;
-    roomPrices.premium = basePrice + 270;
-
-    document.getElementById("standard-price").textContent = `${roomPrices.standard} zł / noc`;
-    document.getElementById("deluxe-price").textContent = `${roomPrices.deluxe} zł / noc`;
-    document.getElementById("premium-price").textContent = `${roomPrices.premium} zł / noc`;
+    offerRooms = currentOffer.rooms || [];
+    renderRoomOptions();
 
     const imgEl = document.getElementById("summary-image");
     imgEl.src = currentOffer.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop";
@@ -77,31 +65,51 @@ function calculateNights(checkin, checkout) {
   return difference / (1000 * 60 * 60 * 24);
 }
 
+function renderRoomOptions() {
+  const container = document.getElementById("dynamic-rooms-list");
+  if (!container) return;
+  if (!offerRooms || offerRooms.length === 0) {
+    container.innerHTML = `<p style="color:#ef4444; font-weight:bold;">Brak zdefiniowanych pokoi dla tego obiektu. Rezerwacja niemożliwa.</p>`;
+    return;
+  }
+  container.innerHTML = offerRooms.map((room, index) => `
+    <label class="room-option ${index === 0 ? 'active-option' : ''}">
+      <input type="radio" name="roomType" value="${room.id}" ${index === 0 ? 'checked' : ''} onchange="updateSummary()" />
+      <div class="room-option-box">
+        <div>
+          <h3>${escapeHTML(room.name)}</h3>
+          <p>Pojemność: ${room.capacity} os. • Wolnych: ${room.quantity}</p>
+        </div>
+        <strong>${room.price} zł / noc</strong>
+      </div>
+    </label>
+  `).join('');
+
+  // Add listeners to new radio buttons for active class switching
+  document.querySelectorAll('input[name="roomType"]').forEach(radio => {
+    radio.addEventListener("change", function() {
+      document.querySelectorAll(".room-option").forEach(lbl => lbl.classList.remove("active-option"));
+      if (this.checked) {
+        this.closest(".room-option").classList.add("active-option");
+      }
+    });
+  });
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>'"]/g, match => {
+    const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return escapeMap[match];
+  });
+}
+
 function getSelectedRoom() {
+  if (offerRooms.length === 0) return null;
   const selectedInput = document.querySelector('input[name="roomType"]:checked');
-  const selectedValue = selectedInput ? selectedInput.value : "standard";
-
-  if (selectedValue === "deluxe") {
-    return {
-      key: "deluxe",
-      name: "Pokój Deluxe",
-      price: roomPrices.deluxe
-    };
-  }
-
-  if (selectedValue === "premium") {
-    return {
-      key: "premium",
-      name: "Apartament Premium",
-      price: roomPrices.premium
-    };
-  }
-
-  return {
-    key: "standard",
-    name: "Pokój Standard",
-    price: roomPrices.standard
-  };
+  const selectedId = selectedInput ? parseInt(selectedInput.value, 10) : offerRooms[0].id;
+  const room = offerRooms.find(r => r.id === selectedId);
+  return room || offerRooms[0];
 }
 
 function formatGuests(value) {
@@ -220,7 +228,7 @@ async function goNext() {
     guests: Number(guests),
     rooms: Number(rooms),
 
-    room_key: selectedRoom.key,
+    room_id: selectedRoom.id,
     room_type: selectedRoom.name,
     price_per_night: selectedRoom.price,
     total_price: nights * selectedRoom.price * Number(rooms)

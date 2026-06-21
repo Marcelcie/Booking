@@ -198,7 +198,7 @@ async function finishReservation() {
         check_out: bookingData.check_out,
         guests: Number(bookingData.guests) || 2,
         rooms: Number(bookingData.rooms) || 1,
-        room_type: bookingData.room_key || 'standard',
+        room_id: bookingData.room_id || null,
         total_price: Number(bookingData.total_price)
       })
     });

@@ -63,7 +63,7 @@ class Booking(models.Model):
     check_out = models.DateField()
     guests = models.IntegerField(default=2)
     rooms = models.IntegerField(default=1)
-    room_type = models.CharField(max_length=50, default='standard')
+    room = models.ForeignKey('Room', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
     created_at = models.DateTimeField(auto_now_add=True)

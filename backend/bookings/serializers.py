@@ -91,12 +91,21 @@ class OfferSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     offer_details = OfferSerializer(source='offer', read_only=True)
+    room_id = serializers.PrimaryKeyRelatedField(
+        queryset=Room.objects.all(), source='room', required=False, allow_null=True
+    )
+    room_type = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking
         fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 
-                  'guests', 'rooms', 'room_type', 'total_price', 'status', 'created_at']
+                  'guests', 'rooms', 'room_id', 'room_type', 'total_price', 'status', 'created_at']
         read_only_fields = ['status', 'created_at']
+        
+    def get_room_type(self, obj):
+        if obj.room:
+            return obj.room.name
+        return "Pokój Standardowy"
     
     def validate(self, attrs):
         check_in = attrs.get('check_in')
@@ -133,6 +142,33 @@ class BookingSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Ten obiekt jest niedostępny w wybranym terminie (blokada właściciela)."
                 )
+
+            # Sprawdź pojemność per-pokój
+            room = attrs.get('room')
+            if room:
+                overlapping = Booking.objects.filter(
+                    offer=offer,
+                    room=room,
+                    status='confirmed',
+                    check_in__lt=check_out,
+                    check_out__gt=check_in
+                ).aggregate(total_booked=Sum('rooms'))['total_booked'] or 0
+                
+                requested_rooms = attrs.get('rooms', 1)
+                if overlapping + requested_rooms > room.quantity:
+                    raise serializers.ValidationError("Wybrany typ pokoju nie ma wystarczającej liczby wolnych jednostek w tym terminie.")
+            else:
+                # Fallback dla starszych ofert (bez pokoi)
+                overlapping = Booking.objects.filter(
+                    offer=offer,
+                    status='confirmed',
+                    check_in__lt=check_out,
+                    check_out__gt=check_in
+                ).exists()
+                if overlapping:
+                    raise serializers.ValidationError(
+                        "Ten obiekt jest już zarezerwowany w wybranym terminie. Wybierz inne daty."
+                    )
         
         return attrs
 

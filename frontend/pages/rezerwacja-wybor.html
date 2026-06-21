@@ -110,39 +110,8 @@
               <div class="form-group">
                 <label>Wybierz wariant pokoju</label>
 
-                <div class="room-options">
-                  <label class="room-option active-option">
-                    <input type="radio" name="roomType" value="standard" checked />
-                    <div class="room-option-box">
-                      <div>
-                        <h3>Pokój Standard</h3>
-                        <p>1 duże łóżko • bezpłatne Wi-Fi • śniadanie</p>
-                      </div>
-                      <strong id="standard-price">---</strong>
-                    </div>
-                  </label>
-
-                  <label class="room-option">
-                    <input type="radio" name="roomType" value="deluxe" />
-                    <div class="room-option-box">
-                      <div>
-                        <h3>Pokój Deluxe</h3>
-                        <p>większa przestrzeń • widok • śniadanie</p>
-                      </div>
-                      <strong id="deluxe-price">---</strong>
-                    </div>
-                  </label>
-
-                  <label class="room-option">
-                    <input type="radio" name="roomType" value="premium" />
-                    <div class="room-option-box">
-                      <div>
-                        <h3>Apartament Premium</h3>
-                        <p>salon • balkon • śniadanie premium</p>
-                      </div>
-                      <strong id="premium-price">---</strong>
-                    </div>
-                  </label>
+                <div class="room-options" id="dynamic-rooms-list">
+                  <p>Ładowanie dostępnych pokoi...</p>
                 </div>
               </div>
 

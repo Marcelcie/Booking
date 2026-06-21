@@ -164,7 +164,10 @@ class OfferListView(APIView):
         if guests:
             try:
                 guests_int = int(guests)
-                offers = offers.filter(rooms__capacity__gte=guests_int).distinct()
+                from django.db.models import Sum, F
+                offers = offers.annotate(
+                    total_capacity=Sum(F('rooms__capacity') * F('rooms__quantity'))
+                ).filter(total_capacity__gte=guests_int).distinct()
             except ValueError:
                 pass
                 
@@ -255,10 +258,15 @@ class RankingGroupedView(APIView):
     """
     def get(self, request):
         base_qs = Offer.objects.filter(is_active=True).select_related('category').prefetch_related('tags', 'reviews')
+        from django.db.models import Min
+        cheapest_qs = base_qs.annotate(
+            min_room_price=Min('rooms__price')
+        ).order_by('min_room_price', 'price')[:5]
+
         data = {
             'topRated': OfferSerializer(base_qs.order_by('-rating')[:5], many=True, context={'request': request}).data,
             'popular': OfferSerializer(base_qs.order_by('-reviews_count')[:5], many=True, context={'request': request}).data,
-            'cheapest': OfferSerializer(base_qs.order_by('price')[:5], many=True, context={'request': request}).data,
+            'cheapest': OfferSerializer(cheapest_qs, many=True, context={'request': request}).data,
             'premium': OfferSerializer(base_qs.filter(stars=5).order_by('-rating')[:5], many=True, context={'request': request}).data
         }
         return Response(data)
