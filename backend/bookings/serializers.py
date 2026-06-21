@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.db.models import Sum
 from .models import Offer, Category, Tag, ContactMessage, Booking, Review, Notification, Room, FAQ
 
 class ContactMessageSerializer(serializers.ModelSerializer):
