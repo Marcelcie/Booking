@@ -219,6 +219,12 @@ async function goNext() {
     return;
   }
 
+  const totalCapacity = selectedRoom.capacity * Number(rooms);
+  if (Number(guests) > totalCapacity) {
+    alert(`Wybrana liczba gości (${guests}) nie zmieści się w wybranych pokojach (łączna pojemność: ${totalCapacity} os.). Wybierz większy pokój lub zwiększ liczbę pokoi.`);
+    return;
+  }
+
   if (!checkin || !checkout) {
     alert("Wybierz datę zameldowania i wymeldowania.");
     return;
