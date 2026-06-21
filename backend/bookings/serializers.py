@@ -240,6 +240,7 @@ class OwnerBookingSerializer(serializers.ModelSerializer):
     guest_name = serializers.CharField(source='user.first_name', read_only=True)
     guest_email = serializers.CharField(source='user.email', read_only=True)
     guest_phone = serializers.SerializerMethodField()
+    room_type = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking
@@ -253,6 +254,11 @@ class OwnerBookingSerializer(serializers.ModelSerializer):
             return obj.user.profile.phone
         except Exception:
             return ''
+
+    def get_room_type(self, obj):
+        if obj.room:
+            return obj.room.name
+        return "Pokój Standardowy"
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
