@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Zarządzaj Obiektem - BookSpace</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    .manage-header {
+      margin-top: 100px;
+      padding: 30px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.15), 0 8px 10px -6px rgba(30, 58, 138, 0.15);
+      margin-bottom: 30px;
+    }
+    .manage-header a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .manage-header a:hover {
+      color: white;
+    }
+    .manage-header h2 {
+      margin-top: 15px;
+      margin-bottom: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    .manage-section {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.025);
+      border: 1px solid #f1f5f9;
+    }
+    .manage-section h3 {
+      margin-bottom: 25px;
+      color: #0f172a;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background-color 0.2s;
+    }
+    .field-row:hover {
+      background-color: #faf5ff;
+      margin-left: -10px;
+      margin-right: -10px;
+      padding-left: 10px;
+      padding-right: 10px;
+      border-radius: 8px;
+    }
+    .field-row:last-child {
+      border-bottom: none;
+    }
+    .field-label {
+      font-weight: 600;
+      color: #64748b;
+      width: 180px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .field-value {
+      flex: 1;
+      color: #334155;
+      font-size: 16px;
+      margin: 0 20px;
+      line-height: 1.5;
+    }
+    .edit-icon {
+      cursor: pointer;
+      color: #3b82f6;
+      font-size: 16px;
+      padding: 8px;
+      background: #eff6ff;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .edit-icon:hover {
+      color: white;
+      background: #2563eb;
+      transform: scale(1.1);
+    }
+    .inline-edit-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      color: #1e293b;
+      transition: border-color 0.2s;
+    }
+    .inline-edit-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .grid-rooms, .grid-faqs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    @media (min-width: 768px) {
+      .grid-rooms {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .room-card, .faq-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .room-card:hover, .faq-card:hover {
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+    .room-card-info h4 {
+      margin: 0 0 8px 0;
+      color: #1e293b;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .room-card-meta {
+      font-size: 13px;
+      color: #64748b;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .room-card-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-row-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      align-items: flex-end;
+    }
+    @media (min-width: 768px) {
+      .form-row-layout {
+        grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      }
+    }
+    .form-group-custom {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group-custom label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .form-group-custom input, .form-group-custom textarea {
+      padding: 10px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .form-group-custom input:focus, .form-group-custom textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .btn-submit-inline {
+      height: 42px;
+      padding: 0 20px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-submit-inline:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div id="global-preloader"><div class="spinner"></div></div>
+
+  <header class="header">
+    <div class="container navbar">
+      <h1 class="logo"><a href="../index.html">BookSpace</a></h1>
+      <nav class="nav">
+        <a href="../index.html">Strona główna</a>
+        <a href="oferty.html">Oferty</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="kontakt.html">Kontakt</a>
+
+        <div id="guest-links" class="nav-auth-group">
+          <a href="login.html">Zaloguj się</a>
+          <a href="register.html">Zarejestruj się</a>
+        </div>
+
+        <div id="account-links" class="nav-auth-group" style="display: none;">
+          <!-- Bell injected by auth.js -->
+          <a href="moj-hotel.html" id="owner-nav-link" class="account-link">Mój hotel</a>
+          <a href="konto.html" class="account-link">Moje konto</a>
+          <a href="#" class="logout-btn logout-btn-link">Wyloguj się</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <main class="container" style="max-width: 1000px; padding-bottom: 80px;">
+    <div class="manage-header">
+      <a href="moj-hotel.html">&larr; Wróć do listy obiektów</a>
+      <h2 id="manage-title">Zarządzaj: Ładowanie...</h2>
+    </div>
+
+    <!-- Dane podstawowe -->
+    <section class="manage-section">
+      <h3>📁 Dane podstawowe</h3>
+      <div id="basic-data-container">
+        <p style="text-align:center;color:#64748b;padding:20px;">Ładowanie danych obiektu...</p>
+      </div>
+    </section>
+
+    <!-- Zarządzanie pokojami -->
+    <section class="manage-section">
+      <h3>🛏️ Pokoje i pojemność</h3>
+      <div id="rooms-list" class="grid-rooms"></div>
+      
+      <form id="add-room-form" class="form-row-layout" style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #f1f5f9;">
+        <div class="form-group-custom">
+          <label>Nazwa pokoju</label>
+          <input type="text" id="new-room-name" placeholder="np. Pokój 2-osobowy Standard" required>
+        </div>
+        <div class="form-group-custom">
+          <label>Pojemność (os.)</label>
+          <input type="number" id="new-room-capacity" min="1" placeholder="2" required>
+        </div>
+        <div class="form-group-custom">
+          <label>Ilość pokoi</label>
+          <input type="number" id="new-room-quantity" min="1" placeholder="1" required>
+        </div>
+        <div class="form-group-custom">
+          <label>Cena (zł/noc)</label>
+          <input type="number" id="new-room-price" min="0" step="0.01" placeholder="150" required>
+        </div>
+        <button type="submit" class="btn-submit-inline">Dodaj pokój</button>
+      </form>
+    </section>
+
+    <!-- Zarządzanie FAQ -->
+    <section class="manage-section">
+      <h3>❓ Często zadawane pytania (FAQ)</h3>
+      <div id="faqs-list" class="grid-faqs"></div>
+      
+      <form id="add-faq-form" style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #f1f5f9; display: flex; flex-direction: column; gap: 15px;">
+        <div class="form-group-custom">
+          <label>Pytanie</label>
+          <input type="text" id="new-faq-question" placeholder="np. Czy śniadanie jest wliczone w cenę?" required>
+        </div>
+        <div class="form-group-custom">
+          <label>Odpowiedź</label>
+          <textarea id="new-faq-answer" rows="3" placeholder="np. Tak, śniadanie w formie bufetu szwedzkiego serwujemy codziennie..." required></textarea>
+        </div>
+        <button type="submit" class="btn-submit-inline" style="align-self: flex-start; height: auto; padding: 12px 24px;">Dodaj FAQ</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/zarzadzaj-hotelem.js"></script>
+</body>
+</html>

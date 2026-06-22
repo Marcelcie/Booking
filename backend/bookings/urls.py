@@ -13,7 +13,21 @@ from .views import (
     ContactMessageView,
     BookingListCreateView,
     BookingCancelView,
-    ChangePasswordView
+    ChangePasswordView,
+    OwnerOfferListView,
+    OwnerOfferDetailView,
+    OwnerBookingListView,
+    OwnerBookingCancelView,
+    OwnerStatsView,
+    NotificationListView,
+    NotificationMarkReadView,
+    OwnerOfferToggleActiveView,
+    OwnerOfferBlockListView,
+    OwnerBlockDeleteView,
+    OwnerRoomListView,
+    OwnerRoomDetailView,
+    OwnerFAQListView,
+    OwnerFAQDetailView,
 )
 
 urlpatterns = [
@@ -30,4 +44,21 @@ urlpatterns = [
     path('contact/',ContactMessageView.as_view(),name='contact'),
     path('bookings/', BookingListCreateView.as_view(), name='booking-list-create'),
     path('bookings/<int:pk>/cancel/', BookingCancelView.as_view(), name='booking-cancel'),
-]
+    # Owner endpoints
+    path('owner/offers/', OwnerOfferListView.as_view(), name='owner-offers-list'),
+    path('owner/offers/<int:pk>/', OwnerOfferDetailView.as_view(), name='owner-offers-detail'),
+    path('owner/bookings/', OwnerBookingListView.as_view(), name='owner-bookings-list'),
+    path('owner/bookings/<int:pk>/cancel/', OwnerBookingCancelView.as_view(), name='owner-bookings-cancel'),
+    path('owner/offers/<int:pk>/toggle-active/', OwnerOfferToggleActiveView.as_view(), name='owner-offers-toggle-active'),
+    path('owner/offers/<int:offer_id>/blocks/', OwnerOfferBlockListView.as_view(), name='owner-offers-blocks-list'),
+    path('owner/blocks/<int:pk>/', OwnerBlockDeleteView.as_view(), name='owner-blocks-delete'),
+    path('owner/offers/<int:offer_id>/rooms/', OwnerRoomListView.as_view(), name='owner-offers-rooms-list'),
+    path('owner/rooms/<int:pk>/', OwnerRoomDetailView.as_view(), name='owner-rooms-delete'),
+    path('owner/offers/<int:offer_id>/faqs/', OwnerFAQListView.as_view(), name='owner-offers-faqs-list'),
+    path('owner/faqs/<int:pk>/', OwnerFAQDetailView.as_view(), name='owner-faqs-delete'),
+    path('owner/stats/', OwnerStatsView.as_view(), name='owner-stats'),
+    # Notifications
+    path('notifications/', NotificationListView.as_view(), name='notifications-list'),
+    path('notifications/mark-read/', NotificationMarkReadView.as_view(), name='notifications-mark-all-read'),
+    path('notifications/<int:pk>/read/', NotificationMarkReadView.as_view(), name='notifications-mark-read'),
+]

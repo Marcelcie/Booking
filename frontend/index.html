@@ -115,7 +115,7 @@
               </div>
             </div>
 
-            <button type="button" class="btn btn-full" onclick="const loc=document.getElementById('location').value; const ci=document.getElementById('checkin').value; const co=document.getElementById('checkout').value; let params=[]; if(loc) params.push('location='+encodeURIComponent(loc)); if(ci) params.push('check_in='+ci); if(co) params.push('check_out='+co); window.location.href='pages/oferty.html' + (params.length ? '?'+params.join('&') : '');">
+            <button type="button" class="btn btn-full" onclick="const loc=document.getElementById('location').value; const ci=document.getElementById('checkin').value; const co=document.getElementById('checkout').value; const guests=parseInt(document.getElementById('adults-count').textContent)+parseInt(document.getElementById('children-count').textContent); let params=[]; if(loc) params.push('location='+encodeURIComponent(loc)); if(ci) params.push('check_in='+ci); if(co) params.push('check_out='+co); if(guests) params.push('guests='+guests); window.location.href='pages/oferty.html' + (params.length ? '?'+params.join('&') : '');">
               Szukaj
             </button>
           </form>
@@ -169,35 +169,35 @@
         <div class="project-cards">
           <div class="project-card">
             <h3>Popularne miasta</h3>
-            <p>
-              <a href="pages/oferty.html?location=Kraków">Kraków</a>, 
-              <a href="pages/oferty.html?location=Gdańsk">Gdańsk</a>, 
-              <a href="pages/oferty.html?location=Zakopane">Zakopane</a>, 
-              <a href="pages/oferty.html?location=Warszawa">Warszawa</a>, 
-              <a href="pages/oferty.html?location=Wrocław">Wrocław</a>
-            </p>
+            <div class="discovery-tags">
+              <a href="pages/oferty.html?location=Kraków" class="discovery-tag">Kraków</a>
+              <a href="pages/oferty.html?location=Gdańsk" class="discovery-tag">Gdańsk</a>
+              <a href="pages/oferty.html?location=Zakopane" class="discovery-tag">Zakopane</a>
+              <a href="pages/oferty.html?location=Warszawa" class="discovery-tag">Warszawa</a>
+              <a href="pages/oferty.html?location=Wrocław" class="discovery-tag">Wrocław</a>
+            </div>
           </div>
 
           <div class="project-card">
             <h3>Najczęściej wybierane</h3>
-            <p>
-              <a href="pages/oferty.html?type=hotel">Hotele</a>, 
-              <a href="pages/oferty.html?type=apartament">apartamenty</a>, 
-              <a href="pages/oferty.html?type=domek">domki</a>, 
-              <a href="pages/oferty.html?type=pensjonat">pensjonaty</a>, 
-              <a href="pages/oferty.html?type=resort">resorty</a>
-            </p>
+            <div class="discovery-tags">
+              <a href="pages/oferty.html?type=hotel" class="discovery-tag">Hotele</a>
+              <a href="pages/oferty.html?type=apartament" class="discovery-tag">Apartamenty</a>
+              <a href="pages/oferty.html?type=domek" class="discovery-tag">Domki</a>
+              <a href="pages/oferty.html?type=pensjonat" class="discovery-tag">Pensjonaty</a>
+              <a href="pages/oferty.html?type=resort" class="discovery-tag">Resorty</a>
+            </div>
           </div>
 
           <div class="project-card">
             <h3>Rodzaje wyjazdów</h3>
-            <p>
-              <a href="pages/oferty.html?tag=Spa %26 Wellness">Wellness</a>, 
-              <a href="pages/oferty.html?tag=Rodzinne">rodzinne</a>, 
-              <a href="pages/oferty.html?tag=Historyczne">historyczne</a>, 
-              <a href="pages/oferty.html?tag=Miejskie">miejskie</a> i 
-              <a href="pages/oferty.html?tag=Aktywne">aktywne</a>
-            </p>
+            <div class="discovery-tags">
+              <a href="pages/oferty.html?tag=Spa %26 Wellness" class="discovery-tag">Wellness</a>
+              <a href="pages/oferty.html?tag=Rodzinne" class="discovery-tag">Rodzinne</a>
+              <a href="pages/oferty.html?tag=Historyczne" class="discovery-tag">Historyczne</a>
+              <a href="pages/oferty.html?tag=Miejskie" class="discovery-tag">Miejskie</a>
+              <a href="pages/oferty.html?tag=Aktywne" class="discovery-tag">Aktywne</a>
+            </div>
           </div>
         </div>
       </div>

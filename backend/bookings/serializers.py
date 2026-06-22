@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import Offer, Category, Tag, ContactMessage, Booking, Review
+from django.db.models import Sum
+from .models import Offer, Category, Tag, ContactMessage, Booking, Review, Notification, Room, FAQ
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     topic = serializers.CharField(source='subject', required=True)
@@ -14,6 +15,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'author_name', 'rating', 'body', 'created_at']
 
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ['id', 'name', 'capacity', 'quantity', 'price']
+
+class FAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FAQ
+        fields = ['id', 'question', 'answer']
+
 class OfferSerializer(serializers.ModelSerializer):
     tags_list = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='name', source='tags'
@@ -22,12 +33,34 @@ class OfferSerializer(serializers.ModelSerializer):
         read_only=True, slug_field='name', source='category'
     )
     reviews = ReviewSerializer(many=True, read_only=True)
+    rooms = RoomSerializer(many=True, read_only=True)
+    faqs = FAQSerializer(many=True, read_only=True)
     is_available = serializers.SerializerMethodField()
+    min_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
         fields = '__all__'
     
+    def get_min_price(self, obj):
+        """Zwraca minimalną cenę pokoju lub cenę bazową oferty jako fallback."""
+        rooms = obj.rooms.all()
+        if rooms.exists():
+            prices = [r.price for r in rooms if r.price is not None]
+            if prices:
+                return float(min(prices))
+        return float(obj.price) if obj.price else None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.image:
+            request = self.context.get('request')
+            if request:
+                data['image_url'] = request.build_absolute_uri(instance.image.url)
+            else:
+                data['image_url'] = instance.image.url
+        return data
+
     def get_is_available(self, obj):
         """Domyślnie True, chyba że kontekst zawiera daty do sprawdzenia."""
         check_in = self.context.get('check_in')
@@ -41,21 +74,49 @@ class OfferSerializer(serializers.ModelSerializer):
             check_in__lt=check_out,
             check_out__gt=check_in
         ).exists()
-        return not overlapping
+        if overlapping:
+            return False
+
+        # Sprawdź nakładające się blokady właściciela
+        from datetime import datetime
+        try:
+            ci = datetime.strptime(check_in, '%Y-%m-%d').date()
+            co = datetime.strptime(check_out, '%Y-%m-%d').date()
+            blocked = obj.blocks.filter(
+                start_date__lt=co,
+                end_date__gt=ci
+            ).exists()
+            return not blocked
+        except Exception:
+            return True
 
 class BookingSerializer(serializers.ModelSerializer):
     offer_details = OfferSerializer(source='offer', read_only=True)
+    room_id = serializers.PrimaryKeyRelatedField(
+        queryset=Room.objects.all(), source='room', required=False, allow_null=True
+    )
+    room_type = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking
         fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 
-                  'guests', 'rooms', 'room_type', 'total_price', 'status', 'created_at']
+                  'guests', 'rooms', 'room_id', 'room_type', 'total_price', 'status', 'created_at']
         read_only_fields = ['status', 'created_at']
+        
+    def get_room_type(self, obj):
+        if obj.room:
+            return obj.room.name
+        return "Pokój Standardowy"
     
     def validate(self, attrs):
         check_in = attrs.get('check_in')
         check_out = attrs.get('check_out')
         offer = attrs.get('offer')
+
+        # Blokada rezerwacji własnego obiektu przez właściciela
+        request = self.context.get('request')
+        if request and offer and offer.owner_id and offer.owner_id == request.user.id:
+            raise serializers.ValidationError("Nie możesz zarezerwować własnego obiektu.")
         
         if check_in and check_out:
             if check_in >= check_out:
@@ -72,6 +133,43 @@ class BookingSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Ten obiekt jest już zarezerwowany w wybranym terminie. Wybierz inne daty."
                 )
+
+            # Sprawdź nakładające się blokady właściciela
+            blocked = offer.blocks.filter(
+                start_date__lt=check_out,
+                end_date__gt=check_in
+            ).exists()
+            if blocked:
+                raise serializers.ValidationError(
+                    "Ten obiekt jest niedostępny w wybranym terminie (blokada właściciela)."
+                )
+
+            # Sprawdź pojemność per-pokój
+            room = attrs.get('room')
+            if room:
+                overlapping = Booking.objects.filter(
+                    offer=offer,
+                    room=room,
+                    status='confirmed',
+                    check_in__lt=check_out,
+                    check_out__gt=check_in
+                ).aggregate(total_booked=Sum('rooms'))['total_booked'] or 0
+                
+                requested_rooms = attrs.get('rooms', 1)
+                if overlapping + requested_rooms > room.quantity:
+                    raise serializers.ValidationError("Wybrany typ pokoju nie ma wystarczającej liczby wolnych jednostek w tym terminie.")
+            else:
+                # Fallback dla starszych ofert (bez pokoi)
+                overlapping = Booking.objects.filter(
+                    offer=offer,
+                    status='confirmed',
+                    check_in__lt=check_out,
+                    check_out__gt=check_in
+                ).exists()
+                if overlapping:
+                    raise serializers.ValidationError(
+                        "Ten obiekt jest już zarezerwowany w wybranym terminie. Wybierz inne daty."
+                    )
         
         return attrs
 
@@ -91,6 +189,7 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
     fullname = serializers.CharField(required=True)
+    is_owner = serializers.BooleanField(required=False, default=False)
 
     def validate(self, attrs):
         if User.objects.filter(email=attrs['email']).exists():
@@ -113,6 +212,9 @@ class RegisterSerializer(serializers.Serializer):
             password = validated_data['password'],
             username = validated_data['email'],
         )
+        # Create UserProfile with is_owner flag
+        from .models import UserProfile
+        UserProfile.objects.create(user=user, is_owner=validated_data.get('is_owner', False))
         return user
 
 class UserProfileUpdateSerializer(serializers.Serializer):
@@ -132,3 +234,34 @@ class ChangePasswordSerializer(serializers.Serializer):
         if len(attrs['new_password']) < 8:
             raise serializers.ValidationError("Nowe hasło musi mieć co najmniej 8 znaków.")
         return attrs
+
+class OwnerBookingSerializer(serializers.ModelSerializer):
+    offer_details = OfferSerializer(source='offer', read_only=True)
+    guest_name = serializers.CharField(source='user.first_name', read_only=True)
+    guest_email = serializers.CharField(source='user.email', read_only=True)
+    guest_phone = serializers.SerializerMethodField()
+    room_type = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Booking
+        fields = ['id', 'offer', 'offer_details', 'check_in', 'check_out', 
+                  'guests', 'rooms', 'room_type', 'total_price', 'status', 'created_at',
+                  'guest_name', 'guest_email', 'guest_phone']
+        read_only_fields = ['status', 'created_at']
+
+    def get_guest_phone(self, obj):
+        try:
+            return obj.user.profile.phone
+        except Exception:
+            return ''
+
+    def get_room_type(self, obj):
+        if obj.room:
+            return obj.room.name
+        return "Pokój Standardowy"
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'message', 'notification_type', 'is_read', 'created_at', 'related_booking']
+        read_only_fields = ['id', 'message', 'notification_type', 'created_at', 'related_booking']

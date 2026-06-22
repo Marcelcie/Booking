@@ -126,6 +126,45 @@ function renderOfferDetails(offer, bookedDates = []) {
       `;
     }
 
+    // Generowanie HTML dla FAQ
+    let faqsHtml = '';
+    if (offer.faqs && offer.faqs.length > 0) {
+      faqsHtml = `
+        <div class="details-card">
+          <h3>Najczęściej zadawane pytania (FAQ)</h3>
+          <div class="faq-list">
+            ${offer.faqs.map(faq => `
+              <div class="faq-item" style="border-bottom: 1px solid #e2e8f0; padding: 12px 0;">
+                <strong style="color: #1d3557; display: block; font-size: 15px; margin-bottom: 5px;">${escapeHtml(faq.question)}</strong>
+                <p style="color: #475569; font-size: 14px; margin: 0;">${escapeHtml(faq.answer)}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Generowanie HTML dla pokoi
+    let roomsHtml = '';
+    if (offer.rooms && offer.rooms.length > 0) {
+      roomsHtml = `
+        <div class="details-card">
+          <h3>Dostępne pokoje</h3>
+          <div class="rooms-list" style="display:flex; flex-direction:column; gap:10px;">
+            ${offer.rooms.map(room => `
+              <div class="room-item" style="background:#f8fafc; border:1px solid #e2e8f0; padding:15px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <strong style="color: #1d3557; font-size: 16px;">${escapeHtml(room.name)}</strong>
+                  <span style="display:block; font-size:13px; color:#64748b; margin-top:4px;">Wielkość: ${room.capacity} os. | Ilość pokoi: ${room.quantity} | Cena: ${room.price} zł / noc</span>
+                </div>
+                <div style="font-size:24px; color:#3b82f6;">🛏️</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     mainContent.innerHTML = `
       <div class="details-card">
         <h3>Opis obiektu</h3>
@@ -137,6 +176,8 @@ function renderOfferDetails(offer, bookedDates = []) {
           ${tagsArray.map(tag => `<div class="amenity-item">✅ ${escapeHtml(tag)}</div>`).join('')}
         </div>
       </div>
+      ${roomsHtml}
+      ${faqsHtml}
       ${reviewsHtml}
     `;
   }
